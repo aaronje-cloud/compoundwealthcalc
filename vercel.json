@@ -1,4 +1,8 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/qqqm-vs-vgt", "destination": "/vgt-vs-qqq", "permanent": true },
+    { "source": "/schg-vs-qqqm", "destination": "/schg-vs-qqq", "permanent": true }
+  ]
 }
