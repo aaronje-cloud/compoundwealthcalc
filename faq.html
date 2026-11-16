@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FAQ: How Freedom Quest Works | Compound Wealth Calc</title>
+<meta name="description" content="Simple answers about compound interest, ETFs, dividends, the 4% rule, account taxes, savings accounts and CDs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#f4f8fc; --panel:rgba(255,255,255,.78); --panel-solid:#ffffff; --ink:#0e2136; --muted:#5a6f8c; --line:#d8e3ef;
+  --gold:#f0a500; --gold-soft:#fff3d1; --growth:#0a96bb; --growth-soft:#dcf3f9; --contrib:#8b6cff; --contrib-soft:#f1edff;
+  --cash:#e0559b; --sky:#e2f5fb; --sky-ink:#066582; --slow:#b1bfd0; --accent2:#6574f2; --on-accent:#ffffff;
+  --grid:rgba(20,80,140,.055); --halo1:rgba(10,160,200,.17); --halo2:rgba(101,116,242,.13); --glow:rgba(10,143,178,.30); --hi:rgba(255,255,255,.8); --tax:#f2795c; --pen:#c83a2e;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding:0 16px}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 56px;display:grid;gap:28px}
+a{color:var(--sky-ink)}
+.sitenav{display:flex;gap:6px;flex-wrap:wrap}
+.sitenav a{font-size:13px;font-weight:700;text-decoration:none;color:var(--sky-ink);padding:6px 12px;border-radius:99px;background:var(--panel);border:1px solid var(--line)}
+.sitenav a[aria-current="page"]{background:var(--growth);color:var(--on-accent);border-color:var(--growth)}
+.back{font-weight:700;text-decoration:none;border-bottom:2px solid var(--contrib);justify-self:start}
+h1,h2{font-family:var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.05}
+h1 em{font-style:normal;color:var(--growth)}
+.lede{color:var(--muted);margin:10px 0 0;max-width:60ch}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px}
+nav.toc a{background:var(--sky);color:var(--sky-ink);text-decoration:none;font-size:13px;font-weight:700;padding:6px 12px;border-radius:99px}
+section{display:grid;gap:10px}
+h2{font-size:22px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 16px}
+details[open]{border-color:var(--contrib)}
+summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--mono);color:var(--growth);flex:none}
+details[open] summary::after{content:"–"}
+summary:focus-visible{outline:2px solid var(--growth);outline-offset:2px;border-radius:6px}
+.ans{padding-bottom:14px;max-width:65ch}
+.ans p{margin:0 0 10px}
+.ans ul{margin:0 0 10px;padding-left:20px}
+.formula{font-family:var(--mono);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font-size:14px;width:100%}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.foot{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+
+/* ---- futuristic light skin ---- */
+body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 88% -8%,var(--halo1),transparent 70%),radial-gradient(45% 40% at -8% 6%,var(--halo2),transparent 70%)}
+h1,h2,h3{font-weight:600;letter-spacing:-.02em}
+.hero h1,header h1{font-size:clamp(30px,5.4vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.02}
+h1 em{background:linear-gradient(90deg,var(--growth),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-family:var(--mono);font-weight:500;letter-spacing:.16em}
+.panel,details{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 var(--hi),0 22px 44px -32px var(--glow)}
+.step h3{font-size:15px}
+.step h3 b{background:transparent;border:1px solid var(--growth);color:var(--growth);font-weight:500}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);box-shadow:0 6px 16px -8px var(--glow)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--growth);outline-offset:2px;box-shadow:0 0 0 5px var(--growth-soft)}
+.score{background:linear-gradient(145deg,var(--sky),var(--panel) 70%);color:var(--ink);border:1px solid color-mix(in srgb,var(--growth) 35%,transparent);box-shadow:inset 0 1px 0 var(--hi),0 24px 50px -26px var(--glow)}
+.score .big{background:linear-gradient(90deg,var(--sky-ink),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tile{background:linear-gradient(180deg,var(--growth-soft),transparent 85%);border:1px solid var(--line)}
+.sitenav a{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:var(--panel)}
+.sitenav a[aria-current="page"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);border-color:transparent}
+.badge.won{box-shadow:0 0 0 1px var(--gold),0 12px 26px -16px var(--gold)}
+.xp i{background:linear-gradient(90deg,var(--gold),var(--growth))}
+.power .coin{box-shadow:0 0 16px -2px var(--gold)}
+input[type=range],input[type=checkbox]{accent-color:var(--growth)}
+
+.sitefoot{border-top:1px solid var(--line);padding-top:18px;margin-top:12px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.sitefoot nav{display:flex;gap:16px;flex-wrap:wrap}
+.sitefoot a{color:var(--sky-ink);font-weight:600;text-decoration:none}
+.sitefoot p{margin:0}
+
+@media (min-width:1000px){
+  .wrap{max-width:900px}
+  body{font-size:18px}
+  .lede{font-size:20px}
+  summary{font-size:18px}
+  .ans p,.ans li{font-size:18px;line-height:1.7}
+  h2{font-size:26px}
+  nav.toc a{font-size:15px}
+  table{font-size:16px}
+}
+
+.sitenav{align-items:center}
+.sitenav .brand{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink) !important;background:none !important;border:0 !important;padding:6px 12px 6px 0 !important;backdrop-filter:none !important;margin-right:4px}
+.sitenav .brand b{color:var(--growth);font-weight:700}
+</style>
+<meta name="theme-color" content="#0a96bb">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:site_name" content="Compound Wealth Calc">
+<meta property="og:title" content="FAQ: How Freedom Quest Works | Compound Wealth Calc">
+<meta property="og:description" content="Simple answers about compound interest, ETFs, dividends, the 4% rule, account taxes, savings accounts and CDs.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.compoundwealthcalc.com/faq">
+<meta property="og:url" content="https://www.compoundwealthcalc.com/faq">
+<meta property="og:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta name="google-adsense-account" content="ca-pub-6483235305858371">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6483235305858371" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="sitenav" aria-label="Site">
+    <a class="brand" href="/">Compound<b>Wealth</b>Calc</a>
+    <a href="/">Freedom Quest</a>
+    <a href="/compare">Compare Funds</a>
+    <a href="/savings">Savings &amp; CDs</a>
+    <a href="/learn">Learn</a>
+    <a href="/faq" aria-current="page">FAQ</a>
+  </nav>
+  <header>
+    <div class="eyebrow">Frequently asked questions</div>
+    <h1>How <em>Freedom Quest</em> works</h1>
+    <p class="lede">Simple answers about the math, the funds, and how people retire early. Tap a question to open it.</p>
+  </header>
+
+  <nav class="toc" aria-label="FAQ sections">
+    <a href="#basics">The basics</a><a href="#funds">Funds</a><a href="#contrib">Paychecks</a><a href="#dividends">Dividends</a><a href="#freedom">Freedom number</a><a href="#compare">Comparing funds</a><a href="#accounts">Accounts &amp; taxes</a><a href="#limits">Limits</a><a href="#savings">Savings &amp; CDs</a>
+  </nav>
+
+  <section id="basics">
+    <h2>The basics</h2>
+    <details open><summary>What is compound interest?</summary><div class="ans">
+      <p>Compound interest means your money earns money, and then that new money earns money too.</p>
+      <p>Say you have $1,000 and it grows 10% in a year. Now you have $1,100. Next year, the 10% is on $1,100, not $1,000. So you gain $110 instead of $100. Each year the gain gets a little bigger.</p>
+      <p>On the chart, purple is the money you put in. Blue is the growth. Over many years, the blue part usually gets much bigger than the purple part.</p>
+    </div></details>
+    <details><summary>Why does starting early matter so much?</summary><div class="ans">
+      <p>Time does most of the work. At a 10% return, money doubles about every 7 years.</p>
+      <p>Money you invest at 25 has 10 more years to grow than money you invest at 35. In those extra 10 years, it can grow about 2.6 times bigger.</p>
+    </div></details>
+    <details><summary>How does the calculator do the math?</summary><div class="ans">
+      <p>It goes one paycheck at a time. First, your balance grows by a small slice of the yearly return. Then your new deposit is added.</p>
+      <div class="formula">rate per paycheck = (1 + yearly return)^(1 ÷ paychecks per year) − 1</div>
+      <div class="formula" style="margin-top:8px">new balance = old balance × (1 + rate per paycheck) + deposit</div>
+      <p style="margin-top:10px">A deposit starts growing on the next paycheck.</p>
+    </div></details>
+  </section>
+
+  <section id="funds">
+    <h2>Funds</h2>
+    <details><summary>What is an index fund? What is an ETF?</summary><div class="ans">
+      <p>An <strong>index fund</strong> buys a small piece of every company on a list. For example, an S&amp;P 500 fund owns about 500 large U.S. companies. One purchase gives you all of them.</p>
+      <p>An <strong>ETF</strong> is a fund you buy and sell like a stock, any time the market is open. Many ETFs are index funds. VOO is an ETF that follows the S&amp;P 500.</p>
+      <p>Mutual funds, like FXAIX or VTSAX, can follow an index too. They trade once a day, after the market closes.</p>
+    </div></details>
+    <details><summary>Where do the return numbers come from?</summary><div class="ans">
+      <p>Each fund uses its average yearly return over the last 10 years. This is the steady yearly rate that would turn the starting value into the ending value.</p>
+      <p>We round these numbers from each fund company's published performance data. We last checked them in October 2026, and we review them again when new yearly data comes out. Read <a href="/how-we-calculate">how we calculate</a> for every step of the math.</p>
+    </div></details>
+    <details><summary>Why use 10 years?</summary><div class="ans">
+      <p>One year is too short. One great or terrible year can make a fund look much better or worse than it is.</p>
+      <p>Ten years includes good and bad times. But even 10 years can be unusual. Big U.S. companies had a very strong decade. Over the very long run, U.S. stocks have averaged closer to 10% a year.</p>
+    </div></details>
+    <details><summary>Can I use a fund that isn't on the list?</summary><div class="ans">
+      <p>Yes. Pick "Enter my own fund" at the bottom of the list. Then type the fund's ticker, its 10-year return, and its dividend yield. You can find these on the fund company's website.</p>
+    </div></details>
+    <details><summary>How does splitting between two funds work?</summary><div class="ans">
+      <p>Pick "Split between two" and move the slider. Your money is divided that way. For example, a 70/30 split of $200 puts $140 in the first fund and $60 in the second.</p>
+      <p>Each fund then grows at its own speed. Over time, the faster fund becomes a bigger part of your total.</p>
+      <p>Some funds own almost the same companies, like VOO and QQQM, or VGT and FTEC. Splitting between those adds less variety than mixing very different funds.</p>
+    </div></details>
+    <details><summary>Why does QQQM show the same return as QQQ?</summary><div class="ans">
+      <p>QQQM started in 2020, so it doesn't have 10 years of history yet. It follows the same list of 100 companies as QQQ. So we use that list's 10-year record.</p>
+      <p>QQQM costs less each year (0.15% vs 0.18%). That's why many long-term investors pick it.</p>
+    </div></details>
+    <details><summary>What is the "fee" next to each fund?</summary><div class="ans">
+      <p>It's the fund's yearly cost, called the <strong>expense ratio</strong>. It's a percent of the money you have in the fund.</p>
+      <p>VOO's fee is 0.03%. That's $3 a year for every $10,000 you have in it. You never get a bill. The fund takes it out a tiny bit each day.</p>
+    </div></details>
+    <details><summary>Are fees included in the math?</summary><div class="ans">
+      <p><strong>Yes, the fund's fee is already included.</strong> Fund returns are reported after the fee is taken out. So we don't subtract it again.</p>
+      <p><strong>These costs are not included:</strong></p>
+      <ul>
+        <li><strong>Advisor fees.</strong> These are often 0.25% to 1% a year, on top of the fund's fee.</li>
+        <li><strong>Extra 401(k) plan fees.</strong> Some workplace plans charge these.</li>
+        <li><strong>Trading fees.</strong> Most big brokers charge $0 now.</li>
+      </ul>
+      <p>If you pay an advisor 1%, lower the return by 1%. For example, use 12.5% instead of 13.5%.</p>
+    </div></details>
+    <details><summary>Do small fees really matter?</summary><div class="ans">
+      <p>Yes. Every dollar you pay in fees stops growing for you. Here's $10,000 invested each year for 30 years, with a 10% return before fees:</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Yearly fee</th><th class="n">Ending value</th></tr></thead>
+        <tbody>
+          <tr><td>0.03% (low-cost index fund)</td><td class="n">about $1.64M</td></tr>
+          <tr><td>1% (advisor or pricey fund)</td><td class="n">about $1.36M</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:10px">That 1% costs about <strong>$270,000</strong>. Most funds on our list charge less than 0.10%.</p>
+    </div></details>
+  </section>
+
+  <section id="contrib">
+    <h2>Paychecks</h2>
+    <details><summary>Fixed amount or percent of my check?</summary><div class="ans">
+      <p><strong>Fixed amount</strong> is the simplest. You pick a dollar amount for each paycheck, like $200.</p>
+      <p><strong>Percent of my check</strong> takes 5%, 10% or 15% of your pay. The calculator shows how much you invest and how much you keep. A percent can be easier to stick with, because it grows when your pay grows.</p>
+    </div></details>
+    <details><summary>Does weekly, biweekly or monthly change the result?</summary><div class="ans">
+      <p>Only a little. What matters most is how much you invest in a year. Pick the one that matches your paycheck.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Schedule</th><th class="n">Paychecks a year</th><th class="n">$200 each = per year</th></tr></thead>
+        <tbody>
+          <tr><td>Monthly</td><td class="n">12</td><td class="n">$2,400</td></tr>
+          <tr><td>Biweekly</td><td class="n">26</td><td class="n">$5,200</td></tr>
+          <tr><td>Weekly</td><td class="n">52</td><td class="n">$10,400</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:10px">Biweekly means every two weeks. That's 26 checks a year, not 24.</p>
+    </div></details>
+    <details><summary>Should I use my take-home pay or my full pay?</summary><div class="ans">
+      <p>If you invest from your bank account, use your take-home pay. That's the amount that lands in your account.</p>
+      <p>If you invest through a 401(k) at work, the money comes out before taxes. Then use your full pay before taxes.</p>
+    </div></details>
+  </section>
+
+  <section id="dividends">
+    <h2>Dividends</h2>
+    <details><summary>What is a dividend?</summary><div class="ans">
+      <p>Some companies share part of their profit with the people who own their stock. These cash payments are called dividends.</p>
+      <p>A fund collects dividends from all its companies and passes them to you, usually every three months. The <strong>yield</strong> is how much a fund pays in a year, as a percent of its price.</p>
+    </div></details>
+    <details><summary>What does "Reinvest dividends" do?</summary><div class="ans">
+      <p><strong>On:</strong> each dividend buys more shares for you. Those new shares pay dividends too. This is often called DRIP.</p>
+      <p><strong>Off:</strong> dividends are paid to you as cash, and that cash stops growing. The chart shows this cash in pink.</p>
+      <p>Most brokers let you turn on reinvesting for free.</p>
+    </div></details>
+    <details><summary>If I turn reinvesting off, does the cash count toward Freedom Day?</summary><div class="ans">
+      <p>No. We assume you spend that cash when it arrives. So only the shares you still own count. That's one reason Freedom Day comes later with reinvesting off.</p>
+    </div></details>
+    <details><summary>Where does my money come from after Freedom Day?</summary><div class="ans">
+      <p>In your first year, you spend 4% of your freedom number. Part of it comes from dividends. You sell some shares to cover the rest.</p>
+      <p>Say you need $50,000 a year from VOO, which pays about 1.3%. About $16,000 comes from dividends. About $34,000 comes from selling shares. A high-dividend fund like SCHD pays most of it in dividends. You need the same total either way.</p>
+    </div></details>
+    <details><summary>Why does reinvesting make such a big difference?</summary><div class="ans">
+      <p>A 1% to 4% yield sounds small. But when you reinvest it, it grows just like the rest of your money. Over 30 years, that can add hundreds of thousands of dollars.</p>
+    </div></details>
+  </section>
+
+  <section id="freedom">
+    <h2>Freedom number &amp; retiring early</h2>
+    <details><summary>What is the freedom number?</summary><div class="ans">
+      <p>It's the amount you need invested so your money can pay your bills. After that, working is a choice. We set it at <strong>25 times your yearly spending</strong>.</p>
+      <div class="formula">$50,000 a year × 25 = $1,250,000</div>
+    </div></details>
+    <details><summary>Why 25 times?</summary><div class="ans">
+      <p>It comes from the <strong>4% rule</strong>. Researchers looked at past U.S. markets. They found you could usually take out 4% in the first year, raise it a bit each year for rising prices, and still have money left after 30 years.</p>
+      <p>4% is the same as 1/25. So you need 25 times what you spend.</p>
+      <p>If you retire very early, your money may need to last 40 or 50 years. Many early retirees play it safer with 3.5%. That means about 28 times their spending.</p>
+    </div></details>
+    <details><summary>What is FIRE?</summary><div class="ans">
+      <p>FIRE stands for <strong>Financial Independence, Retire Early</strong>. People save and invest a big part of their pay so they reach their freedom number years early. Some common styles:</p>
+      <ul>
+        <li><strong>Lean FIRE:</strong> live on less, so you need a smaller number.</li>
+        <li><strong>Fat FIRE:</strong> save a bigger number for a more comfortable life.</li>
+        <li><strong>Coast FIRE:</strong> invest a lot early, then let it grow on its own while you only cover today's bills.</li>
+        <li><strong>Barista FIRE:</strong> leave full-time work and use a part-time job to fill the gap.</li>
+      </ul>
+    </div></details>
+    <details><summary>How does the "Retire by age" goal work?</summary><div class="ans">
+      <p>Type your age and the age you'd like to stop working. The card will say if you're <strong>on track</strong>. If you're <strong>behind</strong>, it shows how much to invest each paycheck to catch up.</p>
+      <p>The goal is optional. If you leave it blank, the calculator just shows when you'll reach your number.</p>
+    </div></details>
+    <details><summary>How far ahead does the chart go?</summary><div class="ans">
+      <p>It goes about 5 years past your Freedom Day. That way you can see the moment you cross the line. If you won't reach your number, it goes to age 65.</p>
+    </div></details>
+    <details><summary>What do the badges mean?</summary><div class="ans">
+      <p>They mark real milestones: First Coin ($1,000), Snowball ($10,000), Six Figures ($100,000), Half Mill ($500,000), Millionaire ($1,000,000) and Freedom (your number).</p>
+      <p>The first $100,000 is usually the slowest. After that, growth starts doing more of the work, and the next badges come faster.</p>
+    </div></details>
+  </section>
+
+  <section id="compare">
+    <h2>Comparing funds</h2>
+    <details><summary>How does the Compare Funds page work?</summary><div class="ans">
+      <p>Pick two to four funds. Each one gets the same money. Then you can see what each could grow to, what it pays in dividends, what it costs, and how bumpy it tends to be. You can send the leader to Freedom Quest with one tap.</p>
+    </div></details>
+    <details><summary>Should I just pick the fund with the highest return?</summary><div class="ans">
+      <p>Not always. The funds that grew fastest lately, like tech funds, own fewer kinds of companies. They have also dropped much more in bad years, like 2000 to 2002 and 2022.</p>
+      <p>A past winner can fall behind for years. Many people keep most of their money in a broad, low-cost fund. Then they add a smaller amount of something more focused.</p>
+    </div></details>
+    <details><summary>What does "typical swings" mean?</summary><div class="ans">
+      <p>It's a simple guide to how much a fund's value goes up and down. Bond funds swing the least. Whole-market stock funds are in the middle. Funds that hold just one industry swing the most.</p>
+      <p>It's a general guide, not an exact measure.</p>
+    </div></details>
+    <details><summary>Why does the page warn me when two funds overlap?</summary><div class="ans">
+      <p>Some funds follow the same list of companies. VOO, SPY, FXAIX and SWPPX all follow the S&amp;P 500. Owning two of them is almost like owning one. The main difference is the fee.</p>
+    </div></details>
+  </section>
+
+  <section id="accounts">
+    <h2>Accounts &amp; taxes</h2>
+    <details><summary>How does the "Which account keeps the most?" chart work?</summary><div class="ans">
+      <p>It takes your yearly spending. Then it shows how much you'd keep after taxes if you took it out of each kind of account in your first year of retirement.</p>
+      <p>It uses 2026 federal tax rules. It assumes this is your only income. It does not include state taxes. You can slide the age to see what changes if you wait.</p>
+    </div></details>
+    <details><summary>Why does retiring before 59½ matter for a 401(k) or IRA?</summary><div class="ans">
+      <p>If you take money out of a regular 401(k) or IRA before age 59½, you usually pay a 10% penalty. That's on top of income tax. Early retirees have a few legal ways around it:</p>
+      <ul>
+        <li><strong>Rule of 55:</strong> leave your job in the year you turn 55 or later. Then you can use that job's 401(k) without the penalty.</li>
+        <li><strong>72(t) payments:</strong> take the same amount every year on a strict schedule. You have to keep it going for years.</li>
+        <li><strong>Roth ladder:</strong> move money into a Roth IRA. Wait five years. Then you can take out that amount without the penalty.</li>
+      </ul>
+    </div></details>
+    <details><summary>Regular account, 401(k) or Roth: what's the difference?</summary><div class="ans">
+      <ul>
+        <li><strong>Regular brokerage account:</strong> no tax break when you put money in. No limits or age rules. When you sell, only your gains are taxed, and the rate can be 0% for many people. Dividends are taxed each year.</li>
+        <li><strong>Traditional 401(k) or IRA:</strong> you pay less tax now. You pay income tax when you take money out. Many jobs add a match, which is free money.</li>
+        <li><strong>Roth 401(k) or IRA:</strong> no tax break now. But after 59½, what you take out is tax-free. You can take out what you put in at any time.</li>
+      </ul>
+      <p>The IRS limits how much you can put in a 401(k) or IRA each year. So many people use more than one kind.</p>
+    </div></details>
+    <details><summary>What is an IUL? Why is there a warning?</summary><div class="ans">
+      <p>An IUL (indexed universal life) is a life insurance policy with a savings part. That savings part earns money based on a stock index. It has a floor, so it won't lose money in a bad year. But it also has a cap, so it can't gain more than a set amount in a good year.</p>
+      <p>You usually take money out with withdrawals and loans. Those are usually not taxed if the policy stays active.</p>
+      <p>Here's the catch. The cap means you miss the market's best years. Dividends usually don't count. Insurance costs and fees eat into growth. So the same money usually grows to much less than in an index fund. Loans also charge interest. If the policy ends with loans on it, you could owe a lot of tax at once.</p>
+      <p>An IUL can make sense for some people who need lifelong insurance and have already filled their 401(k) and IRA. Read the costs carefully before you buy one.</p>
+    </div></details>
+  </section>
+
+  <section id="limits">
+    <h2>Limits of this calculator</h2>
+    <details><summary>Will my money really grow this smoothly?</summary><div class="ans">
+      <p>No. The calculator uses one steady average. Real markets jump around. Some years drop 20% or more. Others rise 25%.</p>
+      <p>Over long periods, the average has held up. But the path is bumpy, and the past doesn't promise the future. Think of the results as one possible path, not a promise.</p>
+    </div></details>
+    <details><summary>Does it count inflation?</summary><div class="ans">
+      <p>Not yet. Inflation means prices go up over time, usually 2% to 3% a year. So $1 million in 30 years will buy less than $1 million buys today.</p>
+      <p>A quick fix: lower the fund's return by about 3%. Then the results are closer to today's dollars.</p>
+    </div></details>
+    <details><summary>What about taxes?</summary><div class="ans">
+      <p>The growth chart doesn't take out taxes. But the "Which account keeps the most?" chart does compare taxes when you take money out.</p>
+      <ul>
+        <li><strong>Regular brokerage account:</strong> dividends and gains can be taxed.</li>
+        <li><strong>401(k) or traditional IRA:</strong> pay less tax now, pay tax later.</li>
+        <li><strong>Roth 401(k) or Roth IRA:</strong> pay tax now, take money out tax-free later.</li>
+        <li><strong>HSA:</strong> can be tax-free in, while growing, and out, when used for medical costs.</li>
+      </ul>
+      <p>A tax professional can help you choose.</p>
+    </div></details>
+    <details><summary>Is this financial advice?</summary><div class="ans">
+      <p>No. Freedom Quest is a learning tool. The fund returns are past results and close estimates. Future results will be different. Talk to a licensed financial professional before you invest.</p>
+    </div></details>
+  </section>
+
+  <section id="savings">
+    <h2>Savings accounts &amp; CDs</h2>
+    <details><summary>What is a high-yield savings account?</summary><div class="ans">
+      <p>It's a savings account that pays a much higher rate. Online banks usually offer them.</p>
+      <p>In September 2026, the average savings account paid 0.37% a year. Many high-yield accounts paid about 3.5%. That's around ten times more interest.</p>
+      <p>You can add or take out money any time. That makes it a good place for an emergency fund. The bank can change the rate whenever it wants.</p>
+    </div></details>
+    <details><summary>What is a CD?</summary><div class="ans">
+      <p>A CD (certificate of deposit) is money you agree to leave at a bank for a set time. That time can be a few months up to five years.</p>
+      <p>In return, your rate is locked. It won't drop, even if other rates fall. You make one deposit at the start. If you take the money out early, you usually lose a few months of interest.</p>
+    </div></details>
+    <details><summary>What is APY?</summary><div class="ans">
+      <p>APY (annual percentage yield) is how much you earn in a year, including interest on your interest. Banks use it so you can compare accounts fairly.</p>
+      <div class="formula">monthly rate = (1 + APY)^(1 ÷ 12) − 1</div>
+    </div></details>
+    <details><summary>Why do other calculators give different numbers?</summary><div class="ans">
+      <p>Calculators make different choices. Three settings explain almost every difference. You can change all three under <strong>Advanced settings</strong> on the Savings page:</p>
+      <ul>
+        <li><strong>APY or interest rate.</strong> Banks show APY. Some calculators treat your number as a plain interest rate instead, which gives a slightly higher result.</li>
+        <li><strong>How often interest is added:</strong> daily, monthly, quarterly, twice a year or yearly.</li>
+        <li><strong>When deposits start earning.</strong> With daily or monthly, each deposit earns right away. With the others, deposits wait until the next period. That's how investor.gov does it.</li>
+      </ul>
+      <p>Example: $1,000 to start, $1,000 a month, 10% for 10 years. "Interest rate" plus "Yearly" gives $193,843, the same as investor.gov. Our bank-style setting gives $202,458.</p>
+    </div></details>
+    <details><summary>Savings, CD or investing: which should I use?</summary><div class="ans">
+      <ul>
+        <li><strong>High-yield savings:</strong> money you might need any time, like an emergency fund. Many people keep 3 to 6 months of bills here.</li>
+        <li><strong>CD:</strong> money for a set date in the next 1 to 5 years, like a car or a home down payment.</li>
+        <li><strong>Index funds:</strong> money you won't touch for 5 years or more. They usually grow much faster, but they can drop a lot along the way.</li>
+      </ul>
+    </div></details>
+    <details><summary>Is my money safe in a savings account or CD?</summary><div class="ans">
+      <p>At a bank insured by the FDIC (or a credit union insured by the NCUA), your money is protected up to $250,000. If the bank fails, that money is still safe. Check that a bank is insured before you open an account.</p>
+    </div></details>
+    <details><summary>Is interest taxed?</summary><div class="ans">
+      <p>Yes. Interest from savings and CDs is taxed like regular pay, in the year you earn it. That's true even if you leave it in the account. The bank sends you a 1099-INT form if you earn $10 or more.</p>
+    </div></details>
+  </section>
+
+  <section id="more">
+    <h2>Want to learn more?</h2>
+    <p>Read our <a href="/learn">easy guides</a> on retiring early, comparing funds, and living off dividends.</p>
+  </section>
+
+  <p class="foot">Compound Wealth Calc is for learning only. Past results don't promise future results. <a href="/">Back to the calculator</a></p>
+  <footer class="sitefoot">
+    <nav aria-label="Site information"><a href="/about">About</a><a href="/how-we-calculate">How we calculate</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/disclaimer">Disclaimer</a></nav>
+    <p>Compound Wealth Calc is for learning only and is not financial advice. Past results don't promise future results. © 2026 Compound Wealth Calc.</p>
+  </footer>
+</div>
+
+</body>
+</html>

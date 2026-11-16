@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compare ETFs Side by Side: Fund Face-Off | Compound Wealth Calc</title>
+<meta name="description" content="Compare up to four ETFs and index funds with the same paycheck deposits. See growth, dividends, fees and risk side by side.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: Freedom Quest system — controls left, winner card + chart + comparison table right */
+:root{
+  --bg:#f4f8fc; --panel:rgba(255,255,255,.78); --panel-solid:#ffffff; --ink:#0e2136; --muted:#5a6f8c; --line:#d8e3ef;
+  --gold:#f0a500; --gold-soft:#fff3d1; --growth:#0a96bb; --growth-soft:#dcf3f9; --contrib:#8b6cff; --contrib-soft:#f1edff;
+  --cash:#e0559b; --sky:#e2f5fb; --sky-ink:#066582; --slow:#b1bfd0; --accent2:#6574f2; --on-accent:#ffffff;
+  --grid:rgba(20,80,140,.055); --halo1:rgba(10,160,200,.17); --halo2:rgba(101,116,242,.13); --glow:rgba(10,143,178,.30); --hi:rgba(255,255,255,.8); --tax:#f2795c; --pen:#c83a2e;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:0 16px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:20px 48px;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sitenav{display:flex;gap:6px;flex-wrap:wrap}
+.sitenav a{font-size:13px;font-weight:700;text-decoration:none;color:var(--sky-ink);padding:6px 12px;border-radius:99px;background:var(--panel);border:1px solid var(--line)}
+.sitenav a[aria-current="page"]{background:var(--growth);color:var(--on-accent);border-color:var(--growth)}
+.hero h1{font-size:clamp(34px,6vw,56px);font-weight:800;line-height:1}
+.hero h1 em{font-style:normal;color:var(--growth)}
+.hero p{color:var(--muted);max-width:56ch;margin:10px 0 0}
+.main{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:18px;min-width:0}
+.step{display:grid;gap:10px}
+.step h3{font-size:17px;display:flex;align-items:center;gap:8px}
+.step h3 b{font-family:var(--mono);font-size:11px;background:var(--gold-soft);color:var(--ink);padding:2px 7px;border-radius:6px}
+label{font-size:13px;font-weight:600;color:var(--muted);display:grid;gap:4px}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+input[type=range]{padding:0}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;flex-wrap:wrap}
+.seg button{flex:1;font:inherit;font-size:13px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:7px 6px;border-radius:9px;cursor:pointer;min-width:0}
+.seg button[aria-pressed="true"]{background:var(--growth);color:var(--on-accent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 10px;border-radius:99px;cursor:pointer}
+.chips button b{font-family:var(--mono);color:var(--sky-ink)}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.adv{border:1px solid var(--line);border-radius:12px;padding:0 14px;background:var(--bg)}
+.adv summary{cursor:pointer;font-weight:700;font-size:14px;padding:12px 0;display:flex;justify-content:space-between;list-style:none}
+.adv summary::-webkit-details-marker{display:none}
+.adv summary::after{content:"+";font-family:var(--mono);color:var(--growth)}
+.adv[open] summary::after{content:"–"}
+.adv summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+.advbody{display:grid;gap:12px;padding-bottom:14px}
+.advbody .lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.advbody .seg{background:var(--panel)}
+.reset{justify-self:start;font:inherit;font-size:12px;font-weight:700;color:var(--sky-ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.score{background:var(--sky);border-radius:18px;padding:18px 20px;display:grid;gap:8px}
+.score .eyebrow{color:var(--sky-ink)}
+.score .big{font-family:var(--mono);font-size:clamp(28px,5vw,40px);font-weight:700;color:var(--sky-ink);line-height:1.1}
+.score .sub{font-size:14px}
+.vs{display:grid;gap:8px;background:var(--panel);border-radius:12px;padding:12px}
+.vs .r{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13px}
+.vs .r span:first-child{font-weight:600}
+.vs .track{height:12px;border-radius:99px;background:var(--bg);overflow:hidden}
+.vs .track i{display:block;height:100%;border-radius:99px;transition:width .4s ease}
+.vs .r b{font-family:var(--mono);font-size:13px}
+.goal{font-size:14px;font-weight:600;display:flex;gap:8px;align-items:flex-start}
+.pill{flex:none;font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;color:var(--on-accent);background:var(--growth);margin-top:1px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{border-radius:12px;padding:12px;background:var(--bg);min-width:0}
+.tile .v{font-family:var(--mono);font-size:20px;font-weight:700;overflow-wrap:anywhere}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile.g .v{color:var(--growth)}
+.chart-wrap{position:relative;width:100%}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:8px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);font-family:var(--mono)}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+th{font-family:var(--body);font-size:12px;color:var(--muted);font-weight:700}
+th:first-child,td:first-child{text-align:left}
+.power{display:flex;gap:12px;align-items:center;background:var(--gold-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+.power .coin{flex:none;width:36px;height:36px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#3a2a00}
+.note{font-size:12px;color:var(--muted);max-width:90ch}
+.note p{margin:4px 0}
+.note a{color:var(--sky-ink)}
+@media (max-width:900px){.main{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:420px){.vs .r{grid-template-columns:90px 1fr auto}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---- futuristic light skin ---- */
+body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 88% -8%,var(--halo1),transparent 70%),radial-gradient(45% 40% at -8% 6%,var(--halo2),transparent 70%)}
+h1,h2,h3{font-weight:600;letter-spacing:-.02em}
+.hero h1,header h1{font-size:clamp(30px,5.4vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.02}
+h1 em{background:linear-gradient(90deg,var(--growth),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-family:var(--mono);font-weight:500;letter-spacing:.16em}
+.panel,details{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 var(--hi),0 22px 44px -32px var(--glow)}
+.step h3{font-size:15px}
+.step h3 b{background:transparent;border:1px solid var(--growth);color:var(--growth);font-weight:500}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);box-shadow:0 6px 16px -8px var(--glow)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--growth);outline-offset:2px;box-shadow:0 0 0 5px var(--growth-soft)}
+.score{background:linear-gradient(145deg,var(--sky),var(--panel) 70%);color:var(--ink);border:1px solid color-mix(in srgb,var(--growth) 35%,transparent);box-shadow:inset 0 1px 0 var(--hi),0 24px 50px -26px var(--glow)}
+.score .big{background:linear-gradient(90deg,var(--sky-ink),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tile{background:linear-gradient(180deg,var(--growth-soft),transparent 85%);border:1px solid var(--line)}
+.sitenav a{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:var(--panel)}
+.sitenav a[aria-current="page"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);border-color:transparent}
+.badge.won{box-shadow:0 0 0 1px var(--gold),0 12px 26px -16px var(--gold)}
+.xp i{background:linear-gradient(90deg,var(--gold),var(--growth))}
+.power .coin{box-shadow:0 0 16px -2px var(--gold)}
+input[type=range],input[type=checkbox]{accent-color:var(--growth)}
+
+/* compare page */
+.picks{display:grid;gap:8px}
+.pick{display:grid;grid-template-columns:14px minmax(0,1fr) 34px;gap:8px;align-items:center}
+.pick .sw{width:14px;height:14px;border-radius:4px}
+.pick button{font:inherit;font-size:16px;line-height:1;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:9px;height:38px;cursor:pointer}
+.addbtn{justify-self:start;font:inherit;font-size:13px;font-weight:700;color:var(--sky-ink);background:none;border:1px dashed var(--growth);border-radius:9px;padding:7px 12px;cursor:pointer}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:600}
+.switchrow input{width:auto}
+.winner{display:grid;gap:10px}
+.winner .row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cta{display:inline-block;font-weight:700;font-size:13px;text-decoration:none;color:var(--on-accent);background:linear-gradient(135deg,var(--growth),var(--accent2));padding:9px 14px;border-radius:10px;box-shadow:0 8px 20px -10px var(--glow)}
+.alerts{display:grid;gap:8px}
+.alert{font-size:13px;background:var(--gold-soft);border-radius:10px;padding:9px 12px}
+.cmp th{white-space:normal;vertical-align:bottom}
+.cmp th,.cmp td{padding:8px 7px}
+.cmp td .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.cmp td.best{color:var(--growth);font-weight:700}
+.risk{font-family:var(--body);font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid currentColor}
+.risk.Low{color:var(--growth)} .risk.Medium{color:var(--sky-ink)} .risk.High{color:var(--tax)} .risk.Very{color:var(--pen)}
+.main{grid-template-columns:360px minmax(0,1fr)}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel>*{min-width:0}
+.soon{font-family:var(--body);font-size:11px;color:var(--muted);font-style:italic}
+
+.sitefoot{border-top:1px solid var(--line);padding-top:18px;margin-top:12px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.sitefoot nav{display:flex;gap:16px;flex-wrap:wrap}
+.sitefoot a{color:var(--sky-ink);font-weight:600;text-decoration:none}
+.sitefoot p{margin:0}
+
+/* ---- big screens: steps 1-5 stacked full width, then the result card, then numbers and chart ---- */
+@media (min-width:1000px){
+  body{font-size:16px}
+  .wrap{max-width:980px}
+  .main{grid-template-columns:minmax(0,1fr) !important;gap:24px}
+  #form,.main>.panel:not(#form){padding:28px 32px}
+  #form{gap:0}
+  #form>.step{display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:28px;row-gap:0;align-items:start;padding-block:22px;border-bottom:1px solid var(--line)}
+  #form>.step:first-child{padding-top:4px}
+  #form>.step>h3{grid-column:1;grid-row:1/span 30;font-size:18px;margin-top:6px}
+  #form>.step>*:not(h3){grid-column:2;margin-bottom:12px}
+  #form>.step>*:last-child{margin-bottom:0}
+  #form>.adv{margin-top:22px}
+  #form>.score{margin-top:24px}
+  .score::before{display:none}
+  label{font-size:15px}
+  input,select{font-size:17px;padding:12px 14px}
+  .seg button{font-size:15px;padding:10px 8px}
+  .hint,.paybox,.fund-card{font-size:15px}
+  .score{padding:26px 30px}
+  .score .big{font-size:48px}
+  .score .sub,.score .goal{font-size:17px}
+  .tile .v{font-size:26px}
+  .tile .k{font-size:15px}
+  .legend{font-size:15px}
+  .power{font-size:17px}
+  .eyebrow{font-size:12px}
+  .hero p{font-size:18px}
+  table{font-size:15px}
+}
+
+.sitenav{align-items:center}
+.sitenav .brand{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink) !important;background:none !important;border:0 !important;padding:6px 12px 6px 0 !important;backdrop-filter:none !important;margin-right:4px}
+.sitenav .brand b{color:var(--growth);font-weight:700}
+</style>
+<meta name="theme-color" content="#0a96bb">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:site_name" content="Compound Wealth Calc">
+<meta property="og:title" content="Compare ETFs Side by Side: Fund Face-Off | Compound Wealth Calc">
+<meta property="og:description" content="Compare up to four ETFs and index funds with the same paycheck deposits. See growth, dividends, fees and risk side by side.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.compoundwealthcalc.com/compare">
+<meta property="og:url" content="https://www.compoundwealthcalc.com/compare">
+<meta property="og:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta name="google-adsense-account" content="ca-pub-6483235305858371">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6483235305858371" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Compare ETFs Side by Side: Fund Face-Off", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare up to four ETFs and index funds with the same paycheck deposits. See growth, dividends, fees and risk side by side.", "url": "https://www.compoundwealthcalc.com/compare"}</script>
+</head>
+<body>
+<div class="wrap">
+  <nav class="sitenav" aria-label="Site">
+    <a class="brand" href="/">Compound<b>Wealth</b>Calc</a>
+    <a href="/">Freedom Quest</a>
+    <a href="/compare" aria-current="page">Compare Funds</a>
+    <a href="/savings">Savings &amp; CDs</a>
+    <a href="/learn">Learn</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+
+  <header class="hero">
+    <div class="eyebrow">Head to head</div>
+    <h1>Fund <em>Face-Off</em></h1>
+    <p>Put up to four funds side by side with the same money going in. See what each could grow to, what it pays in dividends, what it costs, and how bumpy the ride tends to be.</p>
+  </header>
+
+  <section class="main">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="step">
+        <h3><b>1</b>Pick your contenders</h3>
+        <div class="picks" id="picks"></div>
+        <button type="button" class="addbtn" id="addFund">+ Add a fund</button>
+      </div>
+
+      <div class="step">
+        <h3><b>2</b>Same money in each</h3>
+        <label for="initial">Invest today ($)<input id="initial" type="number" min="0" step="100" value="1000"></label>
+        <div class="seg" role="group" aria-label="Pay frequency" id="freq">
+          <button type="button" data-v="12">Monthly</button>
+          <button type="button" data-v="26" aria-pressed="true">Biweekly</button>
+          <button type="button" data-v="52">Weekly</button>
+        </div>
+        <label for="contrib">Amount per paycheck ($)<input id="contrib" type="number" min="0" step="5" value="200"></label>
+      </div>
+
+      <div class="step">
+        <h3><b>3</b>How long</h3>
+        <label for="years">Years: <span class="mono" id="yearsOut">30</span>
+          <input id="years" type="range" min="5" max="50" step="1" value="30">
+        </label>
+        <div class="switchrow"><span>Reinvest dividends (DRIP)</span><input id="drip" type="checkbox" checked aria-label="Reinvest dividends"></div>
+      </div>
+
+      <div class="score winner" aria-live="polite">
+        <div class="eyebrow">Projected leader</div>
+        <div class="big" id="wName">—</div>
+        <div class="sub" id="wSub"></div>
+        <div class="row2"><a class="cta" id="useFund" href="/">Use in Freedom Quest →</a></div>
+      </div>
+    </form>
+
+    <div class="panel" style="gap:16px">
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Growth, same deposits</div>
+        <div class="chart-wrap"><svg id="chart" viewBox="0 0 720 340" role="img" aria-label="Fund comparison chart"></svg><div class="tip" id="tip" hidden></div></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="alerts" id="alerts"></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Side by side</div>
+        <div class="tblwrap"><table class="cmp" id="tbl"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="note">
+    <p><strong>How to read this.</strong> Every fund gets the same starting amount and the same paycheck deposits, and grows at its approximate 10-year average yearly return (roughly mid-2016 to mid-2026). Figures are rounded from each fund company's published data and were last reviewed in October 2026 (<a href="/how-we-calculate">how we calculate</a>). The highest past return isn't automatically the best choice: the funds that grew fastest have also had the deepest drops, and a single sector fund is less diversified than a whole-market fund.</p>
+    <p>"Typical swings" is a general guide based on what each fund holds, not a measured statistic. This is an educational tool, not financial advice. <a href="/faq#compare">Read the FAQ</a>.</p>
+  </section>
+  <footer class="sitefoot">
+    <nav aria-label="Site information"><a href="/about">About</a><a href="/how-we-calculate">How we calculate</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/disclaimer">Disclaimer</a></nav>
+    <p>Compound Wealth Calc is for learning only and is not financial advice. Past results don't promise future results. © 2026 Compound Wealth Calc.</p>
+  </footer>
+</div>
+
+<script>
+const FUNDS=[
+ {k:"VOO",n:"Vanguard S&P 500 ETF",t:13.5,y:1.3,er:0.03,risk:"Medium",grp:"S&P 500"},
+ {k:"SPY",n:"SPDR S&P 500 ETF Trust",t:13.4,y:1.2,er:0.09,risk:"Medium",grp:"S&P 500"},
+ {k:"FXAIX",n:"Fidelity 500 Index Fund",t:13.5,y:1.2,er:0.015,risk:"Medium",grp:"S&P 500"},
+ {k:"SWPPX",n:"Schwab S&P 500 Index Fund",t:13.5,y:1.2,er:0.02,risk:"Medium",grp:"S&P 500"},
+ {k:"VTI",n:"Vanguard Total Stock Market ETF",t:13.0,y:1.3,er:0.03,risk:"Medium",grp:"total U.S. stock market"},
+ {k:"VTSAX",n:"Vanguard Total Stock Mkt Index Admiral",t:13.0,y:1.3,er:0.04,risk:"Medium",grp:"total U.S. stock market"},
+ {k:"QQQ",n:"Invesco QQQ (Nasdaq-100)",t:19.0,y:0.6,er:0.18,risk:"High",grp:"Nasdaq-100"},
+ {k:"QQQM",n:"Invesco Nasdaq 100 ETF",t:19.0,y:0.6,er:0.15,risk:"High",grp:"Nasdaq-100"},
+ {k:"VGT",n:"Vanguard Information Technology ETF",t:21.5,y:0.6,er:0.09,risk:"Very",grp:"U.S. tech sector"},
+ {k:"FTEC",n:"Fidelity MSCI Information Technology ETF",t:21.5,y:0.5,er:0.084,risk:"Very",grp:"U.S. tech sector"},
+ {k:"SCHG",n:"Schwab U.S. Large-Cap Growth ETF",t:17.0,y:0.4,er:0.04,risk:"High",grp:null},
+ {k:"SCHD",n:"Schwab U.S. Dividend Equity ETF",t:11.0,y:3.7,er:0.06,risk:"Medium",grp:null},
+ {k:"VYM",n:"Vanguard High Dividend Yield ETF",t:10.5,y:2.8,er:0.06,risk:"Medium",grp:null},
+ {k:"VT",n:"Vanguard Total World Stock ETF",t:10.0,y:2.0,er:0.06,risk:"Medium",grp:null},
+ {k:"VXUS",n:"Vanguard Total International Stock ETF",t:6.5,y:3.0,er:0.05,risk:"Medium",grp:null},
+ {k:"VNQ",n:"Vanguard Real Estate ETF",t:5.5,y:3.9,er:0.13,risk:"High",grp:null},
+ {k:"BND",n:"Vanguard Total Bond Market ETF",t:1.8,y:3.5,er:0.03,risk:"Low",grp:null}
+];
+const RISK_LABEL={Low:"Low",Medium:"Medium",High:"High",Very:"Very high"};
+const COLORS=["var(--growth)","var(--contrib)","var(--cash)","var(--gold)"];
+const $=id=>document.getElementById(id);
+const fmt=v=>{const a=Math.abs(v);const s=a>=1e6?(a/1e6).toFixed(2)+"M":a>=1e4?Math.round(a/1e3)+"K":Math.round(a).toLocaleString();return(v<0?"-$":"$")+s};
+const usd=v=>"$"+Math.round(v).toLocaleString();
+const state={freq:26,picks:["VOO","QQQM","SCHD","VT"]};
+
+function renderPicks(){
+  $("picks").innerHTML=state.picks.map((k,i)=>`<div class="pick"><span class="sw" style="background:${COLORS[i]}"></span>
+    <select id="pick${i}" aria-label="Fund ${i+1}">${FUNDS.map(f=>`<option value="${f.k}"${f.k===k?" selected":""}>${f.k} · ${f.n}</option>`).join("")}</select>
+    <button type="button" data-rm="${i}" aria-label="Remove fund ${i+1}"${state.picks.length<=2?" disabled":""}>×</button></div>`).join("");
+  $("addFund").hidden=state.picks.length>=4;
+}
+$("picks").addEventListener("change",e=>{const m=e.target.id.match(/^pick(\d)$/);if(m){state.picks[+m[1]]=e.target.value;update()}});
+$("picks").addEventListener("click",e=>{const b=e.target.closest("button[data-rm]");if(!b||state.picks.length<=2)return;state.picks.splice(+b.dataset.rm,1);renderPicks();update()});
+$("addFund").addEventListener("click",()=>{const next=FUNDS.find(f=>!state.picks.includes(f.k));if(next&&state.picks.length<4){state.picks.push(next.k);renderPicks();update()}});
+$("freq").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;[...$("freq").children].forEach(x=>x.setAttribute("aria-pressed",x===b));state.freq=+b.dataset.v;update()});
+
+// Same engine as Freedom Quest: per-paycheck compounding; DRIP off grows at price return and pays dividends as cash
+function simulate(f,o){
+  const n=o.freq,R=(o.drip?f.t:f.t-f.y)/100,g=Math.pow(1+R,1/n)-1,d=Math.pow(1+f.y/100,1/n)-1;
+  let bal=o.initial,paid=o.initial,cash=0;const pts=[{yr:0,bal,paid,cash}];
+  for(let y=1;y<=o.years;y++){for(let p=0;p<n;p++){const dv=bal*d;if(!o.drip)cash+=dv;bal=bal*(1+g)+o.contrib;paid+=o.contrib}pts.push({yr:y,bal,paid,cash})}
+  return pts;
+}
+
+function update(){
+  const years=+$("years").value;$("yearsOut").textContent=years;
+  const o={freq:state.freq,initial:Math.max(0,+$("initial").value||0),contrib:Math.max(0,+$("contrib").value||0),years,drip:$("drip").checked};
+  const rows=state.picks.map((k,i)=>{const f=FUNDS.find(x=>x.k===k);const pts=simulate(f,o);const e=pts[years];
+    return {f,i,pts,end:e.bal,paid:e.paid,divYr:e.bal*f.y/100,feeYr:e.bal*f.er/100,ten:10000*Math.pow(1+(o.drip?f.t:f.t-f.y)/100,10),cash:e.cash}});
+  const sorted=[...rows].sort((a,b)=>b.end-a.end),top=sorted[0],second=sorted[1];
+  $("wName").textContent=top.f.k;
+  $("wSub").innerHTML=`Grows to <b>${usd(top.end)}</b> in ${years} years, <b>${usd(top.end-second.end)}</b> more than ${second.f.k}. Typical swings: <b>${RISK_LABEL[top.f.risk].toLowerCase()}</b>.`;
+  $("useFund").href=`/#fund-${top.f.k}`;
+  $("useFund").textContent=`Use ${top.f.k} in Freedom Quest →`;
+  $("useFund").onclick=()=>{try{localStorage.setItem("fq.fund",top.f.k)}catch(e){}};
+
+  // Alerts: same-index overlap, big-risk leader, income angle
+  const al=[];const seen={};
+  const dup=state.picks.filter((k,i)=>state.picks.indexOf(k)!==i);
+  [...new Set(dup)].forEach(k=>al.push(`<b>${k}</b> is picked more than once. Choose a different fund to compare.`));
+  rows.forEach(r=>{if(r.f.grp){const a=(seen[r.f.grp]=seen[r.f.grp]||[]);if(!a.includes(r.f.k))a.push(r.f.k)}});
+  Object.entries(seen).forEach(([g,ks])=>{if(ks.length>1)al.push(`<b>${ks.join(" and ")}</b> track the same ${g}, so they hold nearly the same stocks. Owning both adds little variety; the lower fee is usually the better pick.`)});
+  if(top.f.risk==="Very"||top.f.risk==="High")al.push(`<b>${top.f.k}</b> leads on past returns, but it's concentrated in fewer companies or sectors and has had much bigger drops than whole-market funds. Many investors pair a fund like this with a broad one rather than going all in.`);
+  const inc=[...rows].sort((a,b)=>b.divYr-a.divYr)[0];
+  if(inc!==top)al.push(`For income, <b>${inc.f.k}</b> would pay the most in dividends: about <b>${usd(inc.divYr)}</b> a year at the end.`);
+  $("alerts").innerHTML=al.map(a=>`<div class="alert">${a}</div>`).join("");
+
+  // Table
+  const best=(key,dir=1)=>rows.reduce((b,r)=>(r[key]*dir>b[key]*dir?r:b),rows[0]);
+  const bEnd=best("end"),bDiv=best("divYr"),bFee=rows.reduce((b,r)=>r.f.er<b.f.er?r:b,rows[0]);
+  const cell=(r,b,txt)=>`<td class="${r===b?"best":""}">${txt}</td>`;
+  $("tbl").innerHTML=`<thead><tr><th>Fund</th><th>Yearly return</th><th>Price only</th><th>Yield</th><th>Fee</th><th>$10K → 10 yrs</th><th>After ${years} yrs</th><th>Dividends/yr at end</th><th>Fees/yr at end</th><th>Typical swings</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr><td><span class="sw" style="background:${COLORS[r.i]}"></span>${r.f.k}</td><td>${r.f.t.toFixed(1)}%</td><td>${(r.f.t-r.f.y).toFixed(1)}%</td>${cell(r,bDiv,r.f.y.toFixed(1)+"%")}${cell(r,bFee,r.f.er+"%")}<td>${usd(r.ten)}</td>${cell(r,bEnd,usd(r.end))}${cell(r,bDiv,usd(r.divYr))}<td>${usd(r.feeYr)}</td><td><span class="risk ${r.f.risk}">${RISK_LABEL[r.f.risk]}</span></td></tr>`).join("")+"</tbody>";
+
+  $("legend").innerHTML=rows.map(r=>`<span><i style="background:${COLORS[r.i]}"></i>${r.f.k}</span>`).join("")+`<span><i style="background:var(--muted)"></i>Total you put in</span>`;
+  drawChart(rows,years);
+}
+
+let last=null;
+function drawChart(rows,years){
+  const cw=$("chart").parentElement.clientWidth,big=cw>780,FS=big?13:11;const W=big?Math.round(cw):720,H=big?Math.round(Math.min(560,Math.max(380,cw*0.5))):340,L=60,R=60,T=14,B=30,svg=$("chart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const maxV=Math.max(...rows.map(r=>r.end),1)*1.08;
+  const x=i=>L+(W-L-R)*i/years,y=v=>T+(H-T-B)*(1-v/maxV);
+  const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(v)));const m=v/p;return(m<=1?1:m<=2?2:m<=5?5:10)*p};
+  const step=nice(maxV/4);let g="";
+  for(let v=0;v<=maxV;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="${FS}" fill="var(--muted)" font-family="JetBrains Mono,monospace">${fmt(v)}</text>`;
+  for(let i=0;i<=years;i+=years<10?1:5)g+=`<text x="${x(i)}" y="${H-10}" text-anchor="${i===0?"start":"middle"}" font-size="${FS}" fill="var(--muted)" font-family="JetBrains Mono,monospace">Yr ${i}</text>`;
+  const p0=rows[0].pts;
+  g+=`<polyline points="${p0.map((p,i)=>`${x(i)},${y(p.paid)}`).join(" ")}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  [...rows].sort((a,b)=>a.end-b.end).forEach(r=>{
+    g+=`<polyline points="${r.pts.map((p,i)=>`${x(i)},${y(p.bal)}`).join(" ")}" fill="none" stroke="${COLORS[r.i]}" stroke-width="3" stroke-linejoin="round"/>`;
+    g+=`<circle cx="${x(years)}" cy="${y(r.end)}" r="4.5" fill="${COLORS[r.i]}" stroke="var(--panel-solid)" stroke-width="2"/>`;
+  });
+  // end labels, nudged apart so they don't overlap
+  const labs=[...rows].sort((a,b)=>b.end-a.end).map(r=>({r,yy:y(r.end)}));
+  for(let i=1;i<labs.length;i++)if(labs[i].yy-labs[i-1].yy<14)labs[i].yy=labs[i-1].yy+14;
+  labs.forEach(l=>g+=`<text x="${x(years)+8}" y="${l.yy+4}" font-size="${FS}" font-weight="700" fill="var(--ink)" font-family="Manrope,sans-serif">${l.r.f.k}</text>`);
+  g+=`<line id="hov" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink)" opacity="0"/>`;
+  svg.innerHTML=g;last={rows,x,W,L,R,years};
+}
+$("chart").addEventListener("pointermove",ev=>{
+  if(!last)return;const svg=$("chart"),r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*last.W;
+  const i=Math.max(0,Math.min(last.years,Math.round((sx-last.L)/(last.W-last.L-last.R)*last.years)));
+  const h=$("hov");h.setAttribute("x1",last.x(i));h.setAttribute("x2",last.x(i));h.setAttribute("opacity",".35");
+  const t=$("tip");t.hidden=false;t.style.left=(last.x(i)/last.W*r.width)+"px";t.style.top=(ev.clientY-r.top)+"px";
+  t.innerHTML=`Year ${i}<br>`+[...last.rows].sort((a,b)=>b.pts[i].bal-a.pts[i].bal).map(x=>`${x.f.k} ${usd(x.pts[i].bal)}`).join("<br>")+`<br>Put in ${usd(last.rows[0].pts[i].paid)}`;
+});
+$("chart").addEventListener("pointerleave",()=>{$("tip").hidden=true;const h=$("hov");h&&h.setAttribute("opacity","0")});
+
+
+$("form").addEventListener("input",update);
+let _rz;window.addEventListener("resize",()=>{clearTimeout(_rz);_rz=setTimeout(update,150)});
+$("form").addEventListener("submit",e=>e.preventDefault());
+// Fund face-off pages link here as #vs-VOO-SPY to preload those funds
+(function(){const m=location.hash.match(/^#vs-([A-Z]+)-([A-Z]+)$/);if(!m)return;const ok=k=>FUNDS.some(f=>f.k===k);if(ok(m[1])&&ok(m[2]))state.picks=[m[1],m[2]];})();
+renderPicks();update();
+</script>
+</body>
+</html>

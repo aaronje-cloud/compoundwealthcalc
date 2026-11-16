@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Freedom Quest Retirement Calculator With Real ETFs | Compound Wealth Calc</title>
+<meta name="description" content="A free, game-like retirement calculator. Pick real ETFs like VOO or QQQM, invest part of each paycheck, and find the age you could retire.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: a quest board — scoreboard hero up top, controls panel + chart side by side, milestone track below */
+:root{
+  --bg:#f4f8fc; --panel:rgba(255,255,255,.78); --panel-solid:#ffffff; --ink:#0e2136; --muted:#5a6f8c; --line:#d8e3ef;
+  --gold:#f0a500; --gold-soft:#fff3d1; --growth:#0a96bb; --growth-soft:#dcf3f9; --contrib:#8b6cff; --contrib-soft:#f1edff;
+  --cash:#e0559b; --sky:#e2f5fb; --sky-ink:#066582; --slow:#b1bfd0; --accent2:#6574f2; --on-accent:#ffffff;
+  --grid:rgba(20,80,140,.055); --halo1:rgba(10,160,200,.17); --halo2:rgba(101,116,242,.13); --glow:rgba(10,143,178,.30); --hi:rgba(255,255,255,.8); --tax:#f2795c; --pen:#c83a2e;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#060d19; --panel:rgba(14,26,44,.78); --panel-solid:#0e1a2c; --ink:#e4f2ff; --muted:#8fa6c3; --line:#1d3150;
+  --gold:#ffc23d; --gold-soft:#33290f; --growth:#33cfee; --growth-soft:#0b2b3a; --contrib:#a593ff; --contrib-soft:#1e1b40;
+  --cash:#ff8cc6; --sky:#0c2436; --sky-ink:#9fe6fb; --slow:#4f6582; --accent2:#8e9bff; --on-accent:#03121c;
+  --grid:rgba(120,200,255,.05); --halo1:rgba(51,207,238,.14); --halo2:rgba(142,155,255,.12); --glow:rgba(51,207,238,.32); --hi:rgba(255,255,255,.06); --tax:#ff9a7f; --pen:#ff5a4d; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:0 16px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 48px;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+.sitenav{display:flex;gap:6px;flex-wrap:wrap}
+.sitenav a{font-size:13px;font-weight:700;text-decoration:none;color:var(--sky-ink);padding:6px 12px;border-radius:99px;background:var(--panel);border:1px solid var(--line)}
+.sitenav a[aria-current="page"]{background:var(--growth);color:var(--on-accent);border-color:var(--growth)}
+/* hero scoreboard */
+.hero{display:grid;gap:20px}
+.hero h1{font-size:clamp(34px,6vw,56px);font-weight:800;line-height:1}
+.hero h1 em{font-style:normal;color:var(--growth)}
+.faqlink{display:inline-block;margin-top:12px;font-weight:700;color:var(--sky-ink);text-decoration:none;border-bottom:2px solid var(--contrib)}
+.faqlink:hover{border-color:var(--growth)}
+.hero p{color:var(--muted);max-width:52ch;margin:10px 0 0}
+.score{position:relative;margin-top:4px;background:var(--sky);color:var(--ink);border-radius:18px;padding:18px 20px;display:grid;gap:6px}
+.score::before{content:"";position:absolute;left:50%;top:-14px;width:2px;height:12px;background:var(--line)}
+.score .eyebrow{color:var(--sky-ink)}
+.score .big{font-family:var(--mono);font-size:clamp(28px,5vw,40px);font-weight:700;color:var(--sky-ink);line-height:1.1}
+.score .income{display:grid;gap:6px;background:var(--panel);border-radius:12px;padding:10px 12px;font-size:13px}
+.score .income .bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--contrib)}
+.score .income .bar i{background:var(--growth)}
+.score .income b{font-family:var(--mono)}
+.score .goal{font-size:14px;font-weight:600;display:flex;gap:8px;align-items:flex-start}
+.score .goal .pill{flex:none;font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;color:var(--on-accent);margin-top:1px}
+.score .goal .ok{background:var(--growth)}
+.score .goal .behind{background:#c8641e}
+.score .goal b{font-family:var(--mono)}
+.score .cashnote{margin:0;font-size:12px;color:var(--muted)}
+.score .sub{font-size:14px}
+.xp{height:12px;border-radius:99px;background:var(--panel);overflow:hidden;margin-top:6px}
+.xp i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .5s ease}
+.lvl{display:flex;justify-content:space-between;font-size:12px;font-family:var(--mono)}
+
+.main{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:18px;min-width:0}
+.step{display:grid;gap:10px}
+.step h3{font-size:17px;display:flex;align-items:center;gap:8px}
+.step h3 b{font-family:var(--mono);font-size:11px;background:var(--gold-soft);color:var(--ink);padding:2px 7px;border-radius:6px}
+label{font-size:13px;font-weight:600;color:var(--muted);display:grid;gap:4px}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;flex-wrap:wrap}
+.seg button{flex:1;font:inherit;font-size:13px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:7px 6px;border-radius:9px;cursor:pointer;min-width:0}
+.seg button[aria-pressed="true"]{background:var(--growth);color:var(--on-accent)}
+.fund-card{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:4px;font-size:13px}
+.fund-card .t{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:14px}
+.stats{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted)}
+.stats span b{color:var(--ink);font-family:var(--mono)}
+.splitbar{height:10px;border-radius:99px;background:var(--contrib);overflow:hidden}
+.splitbar i{display:block;height:100%;background:var(--growth);transition:width .2s}
+.fund-card .note2{font-size:12px;color:var(--muted)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--growth-soft);border-radius:12px;padding:12px}
+.toggle div{font-size:13px;color:var(--ink)}
+.toggle div strong{display:block;font-size:14px}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{opacity:0;position:absolute;inset:0;cursor:pointer;z-index:1;margin:0}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:.2s}
+.switch span::after{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;border-radius:50%;background:var(--panel);transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked+span{background:var(--growth)}
+.switch input:checked+span::after{transform:translateX(22px)}
+.switch input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.paybox{background:var(--contrib-soft);border-radius:12px;padding:10px 12px;font-size:13px}
+.paybox b{font-family:var(--mono)}
+
+/* results */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{border-radius:12px;padding:12px;background:var(--bg);min-width:0}
+.tile .v{font-family:var(--mono);font-size:20px;font-weight:700;overflow-wrap:anywhere}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile.c .v{color:var(--contrib)} .tile.g .v{color:var(--growth)} .tile.d .v{color:var(--cash)}
+.chart-wrap{position:relative;width:100%}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:8px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-110%);font-family:var(--mono)}
+.power{display:flex;gap:12px;align-items:center;background:var(--gold-soft);border-radius:12px;padding:12px 14px;font-size:14px}
+.power .coin{flex:none;width:36px;height:36px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#3a2a00}
+
+/* milestones */
+.track{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.badge{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:4px;background:var(--panel);transition:transform .2s}
+.badge .ic{min-width:34px;width:fit-content;padding:0 7px;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--bg);color:var(--muted);font-size:13px}
+.badge h4{margin:0;font-size:14px}
+.badge p{margin:0;font-size:12px;color:var(--muted)}
+.badge.won{border-color:var(--gold)}
+.badge.won .ic{background:var(--gold);color:#3a2a00}
+.badge.won p{color:var(--ink)}
+.note{font-size:12px;color:var(--muted);max-width:90ch}
+.note p{margin:4px 0}
+
+@media (max-width:900px){
+  .hero,.main{grid-template-columns:1fr}
+  .track{grid-template-columns:repeat(3,1fr)}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){.track{grid-template-columns:repeat(2,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+
+.cmplink{font-size:13px;font-weight:700;color:var(--sky-ink);text-decoration:none;border-bottom:1px dashed var(--growth);justify-self:start}
+/* tax comparison */
+.taxsec{gap:16px}
+.taxhead{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:end}
+.taxhead h2{font-size:24px;margin-top:4px}
+.taxhead .lede{margin:8px 0 0;color:var(--muted);max-width:60ch}
+.taxhead .lede b{color:var(--ink)}
+.taxctl{display:grid;gap:10px}
+.linkbtn{justify-self:start;font:inherit;font-size:12px;font-weight:700;color:var(--sky-ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.taxrows{display:grid;gap:12px}
+.trow{display:grid;grid-template-columns:200px 1fr 170px;gap:14px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.trow.best{border-color:var(--growth);box-shadow:0 10px 26px -18px var(--glow)}
+.trow .nm{font-weight:700;font-size:14px;display:grid;gap:2px}
+.trow .nm small{font-weight:500;font-size:12px;color:var(--muted)}
+.trow .bar{display:flex;height:22px;border-radius:7px;overflow:hidden;background:var(--bg)}
+.trow .bar i{display:block;height:100%;transition:width .4s ease}
+.trow .fig{display:grid;gap:2px;text-align:right;font-size:12px;color:var(--muted)}
+.trow .fig b{font-family:var(--mono);font-size:16px;color:var(--ink)}
+.trow .warn{grid-column:1/-1;font-size:12px;color:var(--ink);background:var(--gold-soft);border-radius:8px;padding:8px 10px}
+.tag{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:99px;background:var(--growth);color:var(--on-accent);justify-self:start}
+.taxnotes{font-size:12px;color:var(--muted);display:grid;gap:6px}
+.taxnotes p{margin:0;max-width:110ch}
+@media (max-width:900px){.taxhead{grid-template-columns:1fr}.trow{grid-template-columns:1fr auto}.trow .bar{grid-column:1/-1;order:3}.trow .warn{order:4}}
+/* ---- futuristic light skin ---- */
+body{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 45% at 88% -8%,var(--halo1),transparent 70%),radial-gradient(45% 40% at -8% 6%,var(--halo2),transparent 70%)}
+h1,h2,h3{font-weight:600;letter-spacing:-.02em}
+.hero h1,header h1{font-size:clamp(30px,5.4vw,52px);font-weight:700;letter-spacing:-.035em;line-height:1.02}
+h1 em{background:linear-gradient(90deg,var(--growth),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-family:var(--mono);font-weight:500;letter-spacing:.16em}
+.panel,details{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 var(--hi),0 22px 44px -32px var(--glow)}
+.step h3{font-size:15px}
+.step h3 b{background:transparent;border:1px solid var(--growth);color:var(--growth);font-weight:500}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);box-shadow:0 6px 16px -8px var(--glow)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--growth);outline-offset:2px;box-shadow:0 0 0 5px var(--growth-soft)}
+.score{background:linear-gradient(145deg,var(--sky),var(--panel) 70%);color:var(--ink);border:1px solid color-mix(in srgb,var(--growth) 35%,transparent);box-shadow:inset 0 1px 0 var(--hi),0 24px 50px -26px var(--glow)}
+.score .big{background:linear-gradient(90deg,var(--sky-ink),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tile{background:linear-gradient(180deg,var(--growth-soft),transparent 85%);border:1px solid var(--line)}
+.sitenav a{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:var(--panel)}
+.sitenav a[aria-current="page"]{background:linear-gradient(135deg,var(--growth),var(--accent2));color:var(--on-accent);border-color:transparent}
+.badge.won{box-shadow:0 0 0 1px var(--gold),0 12px 26px -16px var(--gold)}
+.xp i{background:linear-gradient(90deg,var(--gold),var(--growth))}
+.power .coin{box-shadow:0 0 16px -2px var(--gold)}
+input[type=range],input[type=checkbox]{accent-color:var(--growth)}
+
+.sitefoot{border-top:1px solid var(--line);padding-top:18px;margin-top:12px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.sitefoot nav{display:flex;gap:16px;flex-wrap:wrap}
+.sitefoot a{color:var(--sky-ink);font-weight:600;text-decoration:none}
+.sitefoot p{margin:0}
+
+/* ---- big screens: steps 1-5 stacked full width, then the result card, then numbers and chart ---- */
+@media (min-width:1000px){
+  body{font-size:16px}
+  .wrap{max-width:980px}
+  .main{grid-template-columns:minmax(0,1fr) !important;gap:24px}
+  #form,.main>.panel:not(#form){padding:28px 32px}
+  #form{gap:0}
+  #form>.step{display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:28px;row-gap:0;align-items:start;padding-block:22px;border-bottom:1px solid var(--line)}
+  #form>.step:first-child{padding-top:4px}
+  #form>.step>h3{grid-column:1;grid-row:1/span 30;font-size:18px;margin-top:6px}
+  #form>.step>*:not(h3){grid-column:2;margin-bottom:12px}
+  #form>.step>*:last-child{margin-bottom:0}
+  #form>.adv{margin-top:22px}
+  #form>.score{margin-top:24px}
+  .score::before{display:none}
+  label{font-size:15px}
+  input,select{font-size:17px;padding:12px 14px}
+  .seg button{font-size:15px;padding:10px 8px}
+  .hint,.paybox,.fund-card{font-size:15px}
+  .score{padding:26px 30px}
+  .score .big{font-size:48px}
+  .score .sub,.score .goal{font-size:17px}
+  .tile .v{font-size:26px}
+  .tile .k{font-size:15px}
+  .legend{font-size:15px}
+  .power{font-size:17px}
+  .eyebrow{font-size:12px}
+  .hero p{font-size:18px}
+  table{font-size:15px}
+}
+
+.sitenav{align-items:center}
+.sitenav .brand{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink) !important;background:none !important;border:0 !important;padding:6px 12px 6px 0 !important;backdrop-filter:none !important;margin-right:4px}
+.sitenav .brand b{color:var(--growth);font-weight:700}
+</style>
+<meta name="theme-color" content="#0a96bb">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:site_name" content="Compound Wealth Calc">
+<meta property="og:title" content="Freedom Quest Retirement Calculator With Real ETFs | Compound Wealth Calc">
+<meta property="og:description" content="A free, game-like retirement calculator. Pick real ETFs like VOO or QQQM, invest part of each paycheck, and find the age you could retire.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.compoundwealthcalc.com/">
+<meta property="og:url" content="https://www.compoundwealthcalc.com/">
+<meta property="og:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://www.compoundwealthcalc.com/og-image.png">
+<meta name="google-adsense-account" content="ca-pub-6483235305858371">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6483235305858371" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Compound Wealth Calc", "alternateName": ["CompoundWealthCalc", "compoundwealthcalc.com"], "url": "https://www.compoundwealthcalc.com/"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Freedom Quest Retirement Calculator With Real ETFs", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free, game-like retirement calculator. Pick real ETFs like VOO or QQQM, invest part of each paycheck, and find the age you could retire.", "url": "https://www.compoundwealthcalc.com/"}</script>
+</head>
+<body>
+
+
+<div class="wrap">
+  <nav class="sitenav" aria-label="Site">
+    <a class="brand" href="/">Compound<b>Wealth</b>Calc</a>
+    <a href="/" aria-current="page">Freedom Quest</a>
+    <a href="/compare">Compare Funds</a>
+    <a href="/savings">Savings &amp; CDs</a>
+    <a href="/learn">Learn</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Compound interest calculator · Retire-early planner</div>
+      <h1>Freedom <em>Quest</em></h1>
+      <p>Pick a real fund, skim a slice of every paycheck, and watch compounding do the heavy lifting. Your goal: build a pile big enough to live off 4% a year.</p>
+      <a class="faqlink" href="/faq">How it works: read the FAQ →</a>
+    </div>
+  </header>
+
+  <section class="main">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="step">
+        <h3><b>1</b>Choose your funds</h3>
+        <div class="seg" role="group" aria-label="Number of funds" id="nfunds">
+          <button type="button" data-v="1" aria-pressed="true">One fund</button>
+          <button type="button" data-v="2">Split between two</button>
+        </div>
+        <a class="cmplink" href="/compare">Not sure which fund? Compare them side by side →</a>
+        <label for="fund">First fund
+          <select id="fund"></select>
+        </label>
+        <div class="row" id="customRow" hidden>
+          <label for="cTicker">Ticker<input id="cTicker" value="MYFUND" maxlength="8"></label>
+          <label for="cTotal">10-yr total return %<input id="cTotal" type="number" step="0.1" value="10"></label>
+          <label for="cYield">Dividend yield %<input id="cYield" type="number" step="0.1" value="1.5"></label>
+        </div>
+        <div class="fund-card" id="fundCard"></div>
+        <div id="fund2Box" class="step" hidden>
+          <label for="fund2">Second fund
+            <select id="fund2"></select>
+          </label>
+          <div class="row" id="customRow2" hidden>
+            <label for="cTicker2">Ticker<input id="cTicker2" value="MYFUND2" maxlength="8"></label>
+            <label for="cTotal2">10-yr total return %<input id="cTotal2" type="number" step="0.1" value="8"></label>
+            <label for="cYield2">Dividend yield %<input id="cYield2" type="number" step="0.1" value="2"></label>
+          </div>
+          <div class="fund-card" id="fundCard2"></div>
+          <label for="split">Split: <span class="mono" id="splitOut">70% / 30%</span>
+            <input id="split" type="range" min="5" max="95" step="5" value="70">
+          </label>
+          <div class="splitbar" aria-hidden="true"><i id="splitA" style="width:70%"></i></div>
+          <p class="hint" id="blendOut"></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3><b>2</b>Starting stash</h3>
+        <div class="row">
+          <label for="initial">Invest today ($)<input id="initial" type="number" min="0" step="100" value="1000"></label>
+          <label for="age">Your age<input id="age" type="number" min="14" max="80" placeholder="e.g. 30"></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3><b>3</b>Feed it every payday</h3>
+        <div class="seg" role="group" aria-label="Pay frequency" id="freq">
+          <button type="button" data-v="12">Monthly</button>
+          <button type="button" data-v="26" aria-pressed="true">Biweekly</button>
+          <button type="button" data-v="52">Weekly</button>
+        </div>
+        <div class="seg" role="group" aria-label="Contribution method" id="mode">
+          <button type="button" data-v="flat" aria-pressed="true">Fixed amount</button>
+          <button type="button" data-v="pct">% of my check</button>
+        </div>
+        <label for="flat" id="flatBox">Amount per paycheck ($)<input id="flat" type="number" min="0" step="5" value="200"></label>
+        <div id="pctBox" class="step" hidden>
+          <label for="check">Take-home check ($)<input id="check" type="number" min="0" step="10" value="1600"></label>
+          <div class="seg" role="group" aria-label="Percent of check" id="pct">
+            <button type="button" data-v="5">5%</button>
+            <button type="button" data-v="10" aria-pressed="true">10%</button>
+            <button type="button" data-v="15">15%</button>
+          </div>
+        </div>
+        <div class="paybox" id="payInfo"></div>
+      </div>
+
+      <div class="step">
+        <h3><b>4</b>Compounding</h3>
+        <div class="toggle">
+          <div><strong>Reinvest dividends (DRIP)</strong>Dividends buy more shares instead of landing as cash.</div>
+          <label class="switch" for="drip" aria-label="Reinvest dividends"><input id="drip" type="checkbox" checked><span></span></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3><b>5</b>Your finish line</h3>
+        <label for="spend">Yearly spending in retirement ($)<input id="spend" type="number" min="0" step="1000" value="50000"></label>
+        <p class="hint">Freedom number = spending × 25 (the 4% rule). Shown in future dollars, no inflation adjustment.</p>
+        <label for="goalAge">Retire by age (optional)<input id="goalAge" type="number" min="15" max="100" placeholder="e.g. 55"></label>
+      </div>
+
+      <div class="score" aria-live="polite">
+        <div class="eyebrow">Your result · Freedom Day</div>
+        <div class="big" id="sFreedom">—</div>
+        <div class="sub" id="sFreedomSub"></div>
+        <div class="income" id="sIncome" hidden></div>
+        <p class="cashnote" id="sCashNote" hidden>Dividend reinvesting is off. Cash dividends are assumed to be spent along the way, so they don't count toward your freedom number.</p>
+        <div class="goal" id="sGoal" hidden></div>
+        <div class="xp" aria-hidden="true"><i id="xpBar" style="width:0%"></i></div>
+        <div class="lvl"><span id="lvlName">Level 1</span><span id="xpPct">0%</span></div>
+      </div>
+    </form>
+
+    <div class="panel" style="gap:16px">
+      <div class="eyebrow" id="tilesHead">At Freedom Day</div>
+      <div class="tiles">
+        <div class="tile"><div class="k">Portfolio value</div><div class="v" id="tEnd">—</div></div>
+        <div class="tile c"><div class="k">You put in</div><div class="v" id="tIn">—</div></div>
+        <div class="tile g"><div class="k">Market grew it</div><div class="v" id="tGrow">—</div></div>
+        <div class="tile d"><div class="k" id="tDivK">Dividends reinvested</div><div class="v" id="tDiv">—</div></div>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:6px">Growth over time</div>
+        <div class="chart-wrap" id="chartWrap"><svg id="chart" viewBox="0 0 720 340" role="img" aria-label="Portfolio growth chart"></svg><div class="tip" id="tip" hidden></div></div>
+        <div class="legend">
+          <span><i style="background:var(--contrib)"></i>Your contributions</span>
+          <span><i style="background:var(--growth)"></i>Growth</span>
+          <span id="lgCash"><i style="background:var(--cash)"></i>Cash dividends (assumed spent)</span>
+          <span><i style="background:var(--gold)"></i>Freedom number</span>
+        </div>
+      </div>
+      <div class="power" id="power"></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2 style="font-size:24px">Achievements</h2>
+    <div class="track" id="track"></div>
+  </section>
+
+  <section class="panel taxsec" id="taxes" aria-live="polite">
+    <div class="taxhead">
+      <div>
+        <div class="eyebrow">Same spending, different tax bill</div>
+        <h2>Which account keeps the most?</h2>
+        <p class="lede" id="taxLede"></p>
+      </div>
+      <div class="taxctl">
+        <div class="seg" role="group" aria-label="Filing status" id="filing">
+          <button type="button" data-v="single" aria-pressed="true">Single</button>
+          <button type="button" data-v="mfj">Married, joint</button>
+        </div>
+        <label for="wAge">Start withdrawals at age: <span class="mono" id="wAgeOut">—</span>
+          <input id="wAge" type="range" min="30" max="75" value="55">
+        </label>
+        <button type="button" class="linkbtn" id="wAgeReset">Use my Freedom Day age</button>
+      </div>
+    </div>
+    <div class="taxrows" id="taxRows"></div>
+    <div class="legend">
+      <span><i style="background:var(--growth)"></i>Yours to spend</span>
+      <span><i style="background:var(--tax)"></i>Federal income tax</span>
+      <span><i style="background:var(--pen)"></i>10% early-withdrawal penalty</span>
+    </div>
+    <div class="taxnotes">
+      <p><strong>How this works.</strong> Each row withdraws your yearly spending (<span id="taxS"></span>) in the first year of retirement, assuming it's your only income. It uses 2026 federal brackets and standard deduction. State taxes aren't included.</p>
+      <p><strong>Individual (brokerage):</strong> only the growth part of what you sell is taxed, at long-term capital gains rates (0%, 15% or 20%). Dividends are also taxed each year while you're investing, which isn't shown. <strong>Traditional 401(k)/IRA:</strong> every dollar out is taxed as income, plus a 10% penalty before 59½. You did get a tax break on the way in. Ways around the penalty include the 401(k) "rule of 55" and 72(t) payments. <strong>Roth:</strong> you pay tax before money goes in. After 59½ withdrawals are tax-free; before that, your own contributions come out tax- and penalty-free. <strong>IUL:</strong> money is usually taken out as withdrawals and policy loans, which aren't taxed while the policy stays in force. Contribution limits for 401(k)s and IRAs aren't modeled.</p>
+    </div>
+  </section>
+
+  <section class="note">
+    <p><strong>About the numbers.</strong> Fund returns are approximate 10-year annualized figures (roughly mid-2016 to mid-2026), rounded, with total return assuming dividends reinvested and price return excluding them. They come from each fund company's published performance and fee data and were last reviewed in October 2026. See <a href="/how-we-calculate" style="color:var(--sky-ink)">how we calculate</a> for the full method. Past returns do not predict future ones, and real results swing year to year rather than growing smoothly.</p>
+    <p>Questions about how this works? <a href="/faq" style="color:var(--sky-ink)">Read the FAQ</a>. This is a learning tool, not financial advice. The growth chart does not include taxes or inflation.</p>
+  </section>
+  <footer class="sitefoot">
+    <nav aria-label="Site information"><a href="/about">About</a><a href="/how-we-calculate">How we calculate</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/disclaimer">Disclaimer</a></nav>
+    <p>Compound Wealth Calc is for learning only and is not financial advice. Past results don't promise future results. © 2026 Compound Wealth Calc.</p>
+  </footer>
+</div>
+
+<script>
+// approx 10-yr annualized: t = total return (DRIP), y = trailing dividend yield; price return ≈ t - y
+const FUNDS=[
+ {k:"VOO",n:"Vanguard S&P 500 ETF",t:13.5,y:1.3,er:0.03},
+ {k:"SPY",n:"SPDR S&P 500 ETF Trust",t:13.4,y:1.2,er:0.09},
+ {k:"VTI",n:"Vanguard Total Stock Market ETF",t:13.0,y:1.3,er:0.03},
+ {k:"QQQ",n:"Invesco QQQ (Nasdaq-100)",t:19.0,y:0.6,er:0.18},
+ {k:"QQQM",n:"Invesco Nasdaq 100 ETF",t:19.0,y:0.6,er:0.15,note:"Launched in 2020. Uses the Nasdaq-100's 10-year record, the same index QQQ tracks, at QQQM's lower fee."},
+ {k:"VGT",n:"Vanguard Information Technology ETF",t:21.5,y:0.6,er:0.09},
+ {k:"FTEC",n:"Fidelity MSCI Information Technology ETF",t:21.5,y:0.5,er:0.084},
+ {k:"SCHG",n:"Schwab U.S. Large-Cap Growth ETF",t:17.0,y:0.4,er:0.04},
+ {k:"SCHD",n:"Schwab U.S. Dividend Equity ETF",t:11.0,y:3.7,er:0.06},
+ {k:"VYM",n:"Vanguard High Dividend Yield ETF",t:10.5,y:2.8,er:0.06},
+ {k:"VT",n:"Vanguard Total World Stock ETF",t:10.0,y:2.0,er:0.06},
+ {k:"VXUS",n:"Vanguard Total International Stock ETF",t:6.5,y:3.0,er:0.05},
+ {k:"VNQ",n:"Vanguard Real Estate ETF",t:5.5,y:3.9,er:0.13},
+ {k:"BND",n:"Vanguard Total Bond Market ETF",t:1.8,y:3.5,er:0.03},
+ {k:"FXAIX",n:"Fidelity 500 Index Fund (mutual fund)",t:13.5,y:1.2,er:0.015},
+ {k:"VTSAX",n:"Vanguard Total Stock Mkt Index Admiral",t:13.0,y:1.3,er:0.04},
+ {k:"SWPPX",n:"Schwab S&P 500 Index Fund",t:13.5,y:1.2,er:0.02},
+ {k:"CUSTOM",n:"Enter my own fund…",t:10,y:1.5,er:null}
+];
+const $=id=>document.getElementById(id);
+const fmt=v=>{const a=Math.abs(v);const s=a>=1e6?(a/1e6).toFixed(a>=1e7?1:2)+"M":a>=1e4?Math.round(a/1e3)+"K":Math.round(a).toLocaleString();return(v<0?"-$":"$")+s};
+const fmtFull=v=>"$"+Math.round(v).toLocaleString();
+const state={freq:26,mode:"flat",pct:10};
+
+["fund","fund2"].forEach((id,j)=>FUNDS.forEach((f,i)=>{const o=document.createElement("option");o.value=i;o.textContent=f.k==="CUSTOM"?f.n:`${f.k} · ${f.n}`;$(id).appendChild(o)}));
+$("fund2").value=FUNDS.findIndex(f=>f.k==="QQQM");
+// A fund chosen on the Compare page arrives as #fund-TICKER (or via local storage as a fallback)
+(function(){let k=null;const m=location.hash.match(/^#fund-([A-Z]{1,6})$/);if(m)k=m[1];
+  if(!k){try{k=localStorage.getItem("fq.fund");localStorage.removeItem("fq.fund")}catch(e){}}
+  const i=k?FUNDS.findIndex(f=>f.k===k):-1;if(i>=0)$("fund").value=i;})();
+state.nfunds=1;
+
+function seg(id,key,cast=Number){
+  $(id).addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    [...$(id).children].forEach(x=>x.setAttribute("aria-pressed",x===b));state[key]=cast(b.dataset.v);update()});
+}
+seg("freq","freq");seg("pct","pct");seg("mode","mode",String);seg("nfunds","nfunds");
+
+function fund(sel="fund",sfx=""){
+  const f=FUNDS[+$(sel).value];
+  if(f.k!=="CUSTOM")return f;
+  return {k:($("cTicker"+sfx).value||"MYFUND").toUpperCase(),n:"Your custom fund",t:+$("cTotal"+sfx).value||0,y:+$("cYield"+sfx).value||0,er:null};
+}
+function card(f,drip){
+  const price=f.t-f.y;
+  return `<div class="t"><span>${f.k}</span><span class="mono">${(drip?f.t:price).toFixed(1)}%/yr</span></div>
+   <div class="stats"><span>Total return <b>${f.t.toFixed(1)}%</b></span><span>Price only <b>${price.toFixed(1)}%</b></span><span>Yield <b>${f.y.toFixed(1)}%</b></span>${f.er!=null?`<span>Fee <b>${f.er}%</b></span>`:""}</div>`+(f.note?`<div class="note2">${f.note}</div>`:"");
+}
+
+// Simulate per pay period. Each fund gets its share of the starting amount and every contribution
+// and compounds on its own (no rebalancing). DRIP on: total return. Off: price return, dividends paid as cash.
+function simulate(o){
+  const n=o.freq;
+  const legs=o.funds.map(f=>{const R=o.drip?f.t/100:(f.t-f.y)/100;
+    return {w:f.w,y:f.y/100,g:Math.pow(1+R,1/n)-1,d:Math.pow(1+f.y/100,1/n)-1,bal:o.initial*f.w}});
+  let paid=o.initial, cash=0, divs=0, hit=null, hitYield=0;
+  const total=()=>legs.reduce((a,l)=>a+l.bal,0);
+  const pts=[{yr:0,bal:total(),paid,cash,divs}];
+  const maxYears=Math.max(o.years,60);
+  for(let y=1;y<=maxYears;y++){
+    for(let p=0;p<n;p++){
+      for(const l of legs){
+        const div=l.bal*l.d; divs+=div; if(!o.drip)cash+=div;
+        l.bal=l.bal*(1+l.g)+o.contrib*l.w;
+      }
+      paid+=o.contrib;
+    }
+    const bal=total();
+    if(hit===null&&o.target>0&&bal>=o.target){hit=y;hitYield=legs.reduce((a,l)=>a+l.bal*l.y,0)/bal}
+    if(y<=o.years)pts.push({yr:y,bal,paid,cash,divs});
+  }
+  return {pts,hit,hitYield,end:pts[pts.length-1]};
+}
+
+function update(){
+  const two=state.nfunds===2;
+  const f=fund(), f2=fund("fund2","2");
+  $("customRow").hidden=FUNDS[+$("fund").value].k!=="CUSTOM";
+  $("customRow2").hidden=FUNDS[+$("fund2").value].k!=="CUSTOM";
+  $("fund2Box").hidden=!two;
+  $("pctBox").hidden=state.mode!=="pct"; $("flatBox").hidden=state.mode!=="flat";
+  const check=+$("check").value||0;
+  const contrib=state.mode==="pct"?check*state.pct/100:(+$("flat").value||0);
+  const drip=$("drip").checked, age=+$("age").value||0, hasAge=$("age").value.trim()!=="", spend=+$("spend").value||0, target=spend*25;
+  const initial=+$("initial").value||0;
+  const perYear=contrib*state.freq;
+  const fname={52:"week",26:"two weeks",12:"month"}[state.freq];
+  const w=two?(+$("split").value)/100:1;
+  let split="";
+  if(two)split=` (<b>${fmtFull(contrib*w)}</b> to ${f.k}, <b>${fmtFull(contrib*(1-w))}</b> to ${f2.k})`;
+  $("payInfo").innerHTML=`<b>${fmtFull(contrib)}</b> every ${fname}${split} → <b>${fmtFull(perYear)}</b> a year invested`+(state.mode==="pct"?`, while you keep <b>${fmtFull(check-contrib)}</b> of each check.`:".");
+
+  $("fundCard").innerHTML=card(f,drip);
+  if(two){
+    $("fundCard2").innerHTML=card(f2,drip);
+    $("splitOut").textContent=`${f.k} ${Math.round(w*100)}% / ${f2.k} ${Math.round((1-w)*100)}%`;
+    $("splitA").style.width=(w*100)+"%";
+    const bt=w*f.t+(1-w)*f2.t, by=w*f.y+(1-w)*f2.y;
+    $("blendOut").textContent=`Starting blend: about ${(drip?bt:bt-by).toFixed(1)}% a year. Each fund grows on its own, so over time the faster one becomes a bigger share of your portfolio.`;
+  }
+  const funds=two?[{t:f.t,y:f.y,w},{t:f2.t,y:f2.y,w:1-w}]:[{t:f.t,y:f.y,w:1}];
+
+  const goalAgeRaw=$("goalAge").value.trim(), goalAge=+goalAgeRaw;
+  const goalYrs=hasAge&&goalAgeRaw&&goalAge>age?Math.min(60,goalAge-age):null;
+
+  // First pass finds Freedom Day; the chart then runs 5 years past it (or to age 65 if it's never reached)
+  const probe=simulate({funds,freq:state.freq,contrib,initial,years:60,target,drip});
+  let horizon=probe.hit!==null?probe.hit+5:(hasAge?Math.max(10,65-age):40);
+  if(goalYrs)horizon=Math.max(horizon,goalYrs+2);
+  horizon=Math.max(5,Math.min(60,horizon));
+  const base={funds,freq:state.freq,contrib,initial,years:horizon,target};
+  const sim=simulate({...base,drip});
+  const alt=simulate({...base,drip:!drip});
+  const snapIdx=sim.hit!==null?sim.hit:horizon;
+  const e=sim.pts[snapIdx], last=sim.end;
+  $("tilesHead").textContent=sim.hit!==null?`At Freedom Day · ${hasAge?`age ${age+sim.hit}`:`year ${sim.hit}`}`:(hasAge?`At age ${age+horizon}`:`After ${horizon} years`);
+  $("tEnd").textContent=fmt(e.bal);
+  $("tIn").textContent=fmt(e.paid);
+  $("tGrow").textContent=fmt(e.bal-e.paid);
+  $("tDivK").textContent=drip?"Dividends reinvested":"Cash dividends (spent)";
+  $("tDiv").textContent=fmt(drip?e.divs||0:e.cash);
+  $("lgCash").hidden=drip;
+
+  // Freedom day
+  $("sIncome").hidden=true;
+  if(target<=0){$("sFreedom").textContent="Set a goal";$("sFreedomSub").textContent="";}
+  else if(sim.hit!==null){
+    $("sFreedom").textContent=hasAge?`Age ${age+sim.hit}`:`Year ${sim.hit}`;
+    $("sFreedomSub").textContent=`You reach your ${fmt(target)} freedom number in ${sim.hit} year${sim.hit>1?"s":""}.`+(hasAge?"":" Enter your age to see this as the age you'll be.");
+    // First-year income at Freedom Day: 4% of the freedom number, split between dividends and selling shares
+    const draw=target*0.04, div=Math.min(draw,target*sim.hitYield), sell=draw-div, pctDiv=draw>0?div/draw*100:0;
+    $("sIncome").innerHTML=`<div>At Freedom Day, your first year's <b>${fmt(draw)}</b>: about <b>${fmt(div)}</b> from dividends`+(sell>0.5?`, <b>${fmt(sell)}</b> from selling shares.`:`. Dividends cover it all, with no shares to sell.`)+`</div>
+      <div class="bar" role="img" aria-label="${Math.round(pctDiv)}% dividends"><i style="width:${pctDiv}%"></i></div>`;
+    $("sIncome").hidden=false;
+  }
+  else{$("sFreedom").textContent="60+ years";$("sFreedomSub").textContent=`Freedom number ${fmt(target)} is out of reach at this pace. Try a bigger slice or a longer runway.`}
+  $("sCashNote").hidden=drip;
+
+  // Retire-by-age goal: on track, or how much more per paycheck it would take
+  const g=$("sGoal"); g.hidden=true;
+  let prog;
+  if(target>0&&goalAgeRaw&&!hasAge){
+    g.innerHTML=`<span>Enter your age to check your retire-by goal.</span>`;g.hidden=false;
+    prog=target>0?Math.min(1,last.bal/target):0;$("xpPct").textContent="";
+  } else if(target>0&&goalAgeRaw&&goalAge<=age){
+    g.innerHTML=`<span>Pick a retire-by age above your current age.</span>`;g.hidden=false;
+    prog=Math.min(1,e.bal/target);$("xpPct").textContent="";
+  } else if(target>0&&goalYrs){
+    const atGoal=sim.pts[goalYrs].bal;
+    prog=Math.min(1,atGoal/target);
+    if(sim.hit!==null&&sim.hit<=goalYrs){
+      const early=goalYrs-sim.hit;
+      g.innerHTML=`<span class="pill ok">ON TRACK</span><span>${early?`Free ${early} year${early>1?"s":""} before your age-${goalAge} goal.`:`Right on time for age ${goalAge}.`}</span>`;
+    } else {
+      const reach=c=>{const r=simulate({funds,freq:state.freq,contrib:c,initial,years:goalYrs,target,drip});return r.hit!==null&&r.hit<=goalYrs};
+      let lo=contrib,hi=Math.max(contrib*2,50);
+      for(let i=0;i<30&&!reach(hi);i++)hi*=2;
+      for(let i=0;i<40;i++){const m=(lo+hi)/2;reach(m)?hi=m:lo=m}
+      const need=Math.ceil(hi), more=Math.max(0,need-contrib);
+      g.innerHTML=`<span class="pill behind">BEHIND</span><span>To retire by ${goalAge}, invest about <b>${fmtFull(need)}</b> every ${fname}, <b>${fmtFull(more)}</b> more than now.</span>`;
+    }
+    g.hidden=false;
+    $("xpPct").textContent=`${Math.round(prog*100)}% of goal by age ${goalAge}`;
+  } else {
+    prog=target>0?Math.min(1,last.bal/target):0;
+    $("xpPct").textContent=target>0?`${Math.round(prog*100)}% to freedom`:"";
+  }
+  $("xpBar").style.width=(prog*100).toFixed(1)+"%";
+  const lv=LEVELS.filter(l=>e.bal>=l.v).length;
+  $("lvlName").textContent=`Level ${lv+1} · ${lv?LEVELS[lv-1].name:"Rookie"}`;
+
+  // DRIP power-up, compared at the same moment (Freedom Day, or the end of the chart)
+  const altE=alt.pts[snapIdx];
+  const when=sim.hit!==null?"by Freedom Day":(hasAge?`by age ${age+horizon}`:`after ${horizon} years`);
+  const diff=drip?e.bal-altE.bal:altE.bal-e.bal;
+  $("power").innerHTML=drip
+   ?`<div class="coin">+</div><div><strong>DRIP power-up active.</strong> Reinvesting dividends adds <b class="mono">${fmtFull(diff)}</b> to your portfolio ${when} versus taking them as cash.</div>`
+   :`<div class="coin">!</div><div><strong>Power-up available.</strong> Turn on dividend reinvesting to grow your portfolio by <b class="mono">${fmtFull(diff)}</b> more ${when}. You'd collect <b class="mono">${fmtFull(e.cash)}</b> in cash instead.</div>`;
+
+  drawChart(sim.pts,target,drip,{goalYr:goalYrs,goalAge,hitYr:sim.hit,age:hasAge?age:null});
+  renderBadges(last.bal,target,sim,hasAge?age:null);
+  const hitAge=hasAge&&sim.hit!==null?age+sim.hit:null;
+  if(!taxState.manual||taxState.wAge===null)taxState.wAge=Math.min(75,Math.max(30,hitAge??55));
+  $("wAge").value=taxState.wAge;
+  $("wAgeReset").hidden=!(taxState.manual&&hitAge!==null&&hitAge!==taxState.wAge);
+  renderTax({spend,paid:e.paid,bal:e.bal,hitAge});
+}
+
+
+// ---- Tax comparison: first-year withdrawal of yearly spending, 2026 federal rules (IRS Rev. Proc. 2025-32) ----
+const TAX={
+  single:{std:16100,br:[[12400,.10],[50400,.12],[105700,.22],[201775,.24],[256225,.32],[640600,.35],[Infinity,.37]],cg:[[49450,0],[545500,.15],[Infinity,.20]],niit:200000},
+  mfj:{std:32200,br:[[24800,.10],[100800,.12],[211400,.22],[403550,.24],[512450,.32],[768700,.35],[Infinity,.37]],cg:[[98900,0],[613700,.15],[Infinity,.20]],niit:250000}
+};
+const taxState={filing:"single",wAge:null};
+function bracketTax(income,br){let t=0,prev=0;for(const[top,r]of br){if(income>prev)t+=(Math.min(income,top)-prev)*r;prev=top}return t}
+function ordTax(gross,f){return bracketTax(Math.max(0,gross-f.std),f.br)}
+function gainsTax(gain,f){const ti=Math.max(0,gain-f.std);return bracketTax(ti,f.cg)+Math.max(0,gain-f.niit)*0.038}
+function renderTax(o){
+  const f=TAX[taxState.filing], S=o.spend, wa=taxState.wAge;
+  $("wAgeOut").textContent=wa;$("taxS").textContent=fmtFull(S);
+  if(S<=0){$("taxRows").innerHTML="";$("taxLede").textContent="Enter your yearly spending to compare accounts.";return}
+  const early=wa<59.5, basisFrac=o.bal>0?Math.min(1,o.paid/o.bal):1;
+  const rows=[];
+  // Individual brokerage: only gains are taxed, at capital-gains rates
+  const gain=S*(1-basisFrac);
+  rows.push({k:"Individual",d:"Taxable brokerage account",tax:gainsTax(gain,f),pen:0});
+  // Traditional 401(k)/IRA: all ordinary income, +10% before 59½
+  rows.push({k:"401(k) / IRA",d:"Traditional, pre-tax",tax:ordTax(S,f),pen:early?S*.10:0});
+  // Roth: tax-free after 59½; before, contributions first, then earnings taxed + 10%
+  let rt=0,rp=0;
+  if(early){const ex=Math.max(0,S-o.paid);rt=ordTax(ex,f);rp=ex*.10}
+  rows.push({k:"Roth 401(k) / IRA",d:"After-tax contributions",tax:rt,pen:rp});
+  rows.push({k:"IUL",d:"Indexed universal life",tax:0,pen:0,iul:true});
+  rows.forEach(r=>{r.lost=r.tax+r.pen;r.net=S-r.lost});
+  const minLost=Math.min(...rows.filter(r=>!r.iul).map(r=>r.lost));
+  $("taxRows").innerHTML=rows.map(r=>{
+    const best=!r.iul&&Math.abs(r.lost-minLost)<1;
+    return `<div class="trow${best?" best":""}">
+      <div class="nm">${best?'<span class="tag">KEEPS THE MOST</span>':""}${r.k}<small>${r.d}</small></div>
+      <div class="bar" role="img" aria-label="${r.k}: ${fmtFull(r.net)} to spend, ${fmtFull(r.lost)} to taxes and penalties">
+        <i style="width:${r.net/S*100}%;background:var(--growth)"></i><i style="width:${r.tax/S*100}%;background:var(--tax)"></i><i style="width:${r.pen/S*100}%;background:var(--pen)"></i>
+      </div>
+      <div class="fig"><span><b>${fmtFull(r.net)}</b> to spend</span><span>${r.lost>0.5?`${fmtFull(r.tax)} tax${r.pen>0?` + ${fmtFull(r.pen)} penalty`:""} · ${(r.lost/S*100).toFixed(1)}%`:"No federal tax"}</span></div>
+      ${r.iul?`<div class="warn"><strong>Fewer taxes, usually less money.</strong> IUL growth is limited by a cap (often around 8–10% a year, set by the insurer) and reduced by insurance charges and fees, so the same contributions typically build a much smaller balance than an index fund. Policy loans also charge interest, and if the policy lapses, the gains can become taxable all at once.</div>`:""}
+    </div>`}).join("");
+  const trad=rows[1];
+  $("taxLede").innerHTML=`Withdrawing <b>${fmtFull(S)}</b> at age <b>${wa}</b>${o.hitAge===wa?" (your Freedom Day)":""}: `+
+    (early?`a traditional 401(k)/IRA loses <b>${fmtFull(trad.lost)}</b> to tax and the early-withdrawal penalty.`:`you're past 59½, so there's no early-withdrawal penalty on retirement accounts.`);
+}
+$("filing").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  [...$("filing").children].forEach(x=>x.setAttribute("aria-pressed",x===b));taxState.filing=b.dataset.v;update()});
+$("wAge").addEventListener("input",()=>{taxState.wAge=+$("wAge").value;taxState.manual=true;update()});
+$("wAgeReset").addEventListener("click",()=>{taxState.manual=false;update()});
+
+const LEVELS=[
+ {v:1000,name:"First Coin",d:"Hit $1,000 invested"},
+ {v:10000,name:"Snowball",d:"Portfolio reaches $10K"},
+ {v:100000,name:"Six Figures",d:"The hardest $100K"},
+ {v:500000,name:"Half Mill",d:"Compounding takes over"},
+ {v:1000000,name:"Millionaire",d:"Seven figures"},
+];
+function renderBadges(bal,target,sim,age){
+  const items=LEVELS.map((l,i)=>{const yr=sim.pts.find(p=>p.bal>=l.v);return{ic:["$","10K","100K","½M","1M"][i],name:l.name,d:yr?`Year ${yr.yr}`+(age!==null?` · age ${age+yr.yr}`:""):l.d,won:bal>=l.v}});
+  items.push({ic:"FI",name:"Freedom",d:sim.hit!==null?`Year ${sim.hit}`+(age!==null?` · age ${age+sim.hit}`:""):`Reach ${fmt(target)}`,won:sim.hit!==null});
+  $("track").innerHTML=items.map(b=>`<div class="badge${b.won?" won":""}"><div class="ic">${b.ic}</div><h4>${b.name}</h4><p>${b.d}</p></div>`).join("");
+}
+
+// chart
+let lastPts=[],lastAge=0;
+function drawChart(pts,target,drip,mk={}){
+  lastPts=pts;lastAge=mk.age;
+  const cw=$("chart").parentElement.clientWidth,big=cw>780,FS=big?13:11;const W=big?Math.round(cw):720,H=big?Math.round(Math.min(560,Math.max(380,cw*0.5))):340,L=56,R=14,T=14,B=30,svg=$("chart");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const maxV=Math.max(...pts.map(p=>p.bal+(drip?0:p.cash)),target>0&&target<pts[pts.length-1].bal*2.5?target:0)*1.08||1;
+  const n=pts.length-1||1;
+  const x=i=>L+(W-L-R)*i/n, y=v=>T+(H-T-B)*(1-v/maxV);
+  const step=nice(maxV/4);
+  let g="";
+  for(let v=0;v<=maxV;v+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="${FS}" fill="var(--muted)" font-family="JetBrains Mono,monospace">${fmt(v)}</text>`}
+  const xStep=n<10?1:5;
+  for(let i=0;i<=n;i+=xStep)g+=`<text x="${x(i)}" y="${H-10}" text-anchor="${x(i)>W-R-30?"end":i===0?"start":"middle"}" font-size="${FS}" fill="var(--muted)" font-family="JetBrains Mono,monospace">${mk.age!=null?`Age ${mk.age+pts[i].yr}`:`Yr ${pts[i].yr}`}</text>`;
+  const area=(top,bot)=>`M${pts.map((p,i)=>`${x(i)},${y(top(p))}`).join("L")}L${pts.map((p,i)=>`${x(i)},${y(bot(p))}`).reverse().join("L")}Z`;
+  g+=`<path d="${area(p=>p.bal,p=>p.paid)}" fill="var(--growth)" opacity=".85"/>`;
+  g+=`<path d="${area(p=>p.paid,()=>0)}" fill="var(--contrib)" opacity=".85"/>`;
+  if(!drip)g+=`<path d="${area(p=>p.bal+p.cash,p=>p.bal)}" fill="var(--cash)" opacity=".7"/>`;
+  g+=`<polyline points="${pts.map((p,i)=>`${x(i)},${y(p.bal)}`).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+  if(target>0&&target<=maxV){g+=`<line x1="${L}" x2="${W-R}" y1="${y(target)}" y2="${y(target)}" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="7 5"/><text x="${L+6}" y="${y(target)-7}" font-size="${FS+1}" font-weight="700" fill="var(--gold)" font-family="Manrope,sans-serif">Freedom number ${fmt(target)}</text>`}
+  if(mk.goalYr&&mk.goalYr<=n){const gx=x(mk.goalYr);g+=`<line x1="${gx}" x2="${gx}" y1="${T}" y2="${H-B}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 4"/><text x="${gx-6}" y="${T+12}" text-anchor="end" font-size="${FS}" font-weight="700" fill="var(--muted)" font-family="Manrope,sans-serif">Goal: age ${mk.goalAge}</text>`}
+  if(mk.hitYr!==null&&mk.hitYr!==undefined&&mk.hitYr<=n){const hp=pts[mk.hitYr];g+=`<circle cx="${x(mk.hitYr)}" cy="${y(hp.bal)}" r="7" fill="var(--gold)" stroke="var(--panel)" stroke-width="3"/>`}
+  const last=pts[n];g+=`<circle cx="${x(n)}" cy="${y(last.bal)}" r="5" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/>`;
+  g+=`<line id="hov" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink)" stroke-width="1" opacity="0"/>`;
+  svg.innerHTML=g;
+  svg._map={x,L,R,W,n};
+}
+function nice(v){const p=Math.pow(10,Math.floor(Math.log10(v)));const m=v/p;return(m<=1?1:m<=2?2:m<=5?5:10)*p}
+$("chart").addEventListener("pointermove",ev=>{
+  const svg=$("chart"),m=svg._map;if(!m)return;
+  const r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*m.W;
+  const i=Math.max(0,Math.min(m.n,Math.round((sx-m.L)/(m.W-m.L-m.R)*m.n)));const p=lastPts[i];
+  const hov=$("hov");hov.setAttribute("x1",m.x(i));hov.setAttribute("x2",m.x(i));hov.setAttribute("opacity",".35");
+  const t=$("tip");t.hidden=false;t.style.left=(m.x(i)/m.W*r.width)+"px";t.style.top=(ev.clientY-r.top)+"px";
+  t.innerHTML=`Year ${p.yr}${lastAge!=null?` · age ${lastAge+p.yr}`:""}<br>Value ${fmtFull(p.bal)}<br>Put in ${fmtFull(p.paid)}`+(p.cash?`<br>Cash divs ${fmtFull(p.cash)}`:"");
+});
+$("chart").addEventListener("pointerleave",()=>{$("tip").hidden=true;const h=$("hov");h&&h.setAttribute("opacity","0")});
+
+
+$("form").addEventListener("input",update);
+let _rz;window.addEventListener("resize",()=>{clearTimeout(_rz);_rz=setTimeout(update,150)});
+$("form").addEventListener("submit",e=>e.preventDefault());
+update();
+</script>
+
+</body>
+</html>
